@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إمبراطور الظلام والنور - المشهد الأول</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #05050a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        #canvas-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        /* UI Overlay */
+        .ui-container {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 10;
+        }
+        .btn {
+            background: linear-gradient(135deg, #ff8c00, #ff0055);
+            border: 2px solid #fff;
+            color: white;
+            padding: 14px 28px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(255, 140, 0, 0.6);
+            transition: all 0.2s ease;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.9);
+        }
+        .title-overlay {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #fff;
+            text-align: right;
+            z-index: 10;
+            pointer-events: none;
+        }
+        .title-overlay h1 {
+            font-size: 2rem;
+            text-shadow: 0 0 10px #ff0055, 0 0 20px #00e5ff;
+        }
+        .title-overlay p {
+            font-size: 1.1rem;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="canvas-container">
+        <div class="title-overlay">
+            <h1>إمبراطور الظلام والنور</h1>
+            <p>أيومي أشيا ضد قائد الشياطين</p>
+        </div>
+        
+        <canvas id="animeCanvas"></canvas>
+
+        <div class="ui-container">
+            <button class="btn" onclick="triggerUltimateAttack()">💥 إطلاق قوة النور الساطعة (Ultimate Attack)</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('animeCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // State variables
+        let frame = 0;
+        let isAttacking = false;
+        let attackProgress = 0;
+        let shakeTime = 0;
+
+        // Particle system for magical effects
+        const particles = [];
+
+        class Particle {
+            constructor(x, y, color, speedX, speedY, size, life) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.speedX = speedX;
+                this.speedY = speedY;
+                this.size = size;
+                this.life = life;
+                this.maxLife = life;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life--;
+                this.size *= 0.97;
+            }
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life / this.maxLife;
+                ctx.fillStyle = this.color;
+                ctx.shadowColor = this.color;
+                ctx.shadowBlur = 15;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, Math.max(0, this.size), 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Trigger Ultimate Attack
+        function triggerUltimateAttack() {
+            isAttacking = true;
+            attackProgress = 0;
+            shakeTime = 30; // Shake screen for 30 frames
+        }
+
+        function drawBackground() {
+            // Dark mystical gradient background
+            const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, '#0a0017');
+            grad.addColorStop(0.5, '#120224');
+            grad.addColorStop(1, '#020005');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Aura vortex in center
+            ctx.save();
+            ctx.translate(canvas.width / 2, canvas.height / 2);
+            ctx.rotate(frame * 0.01);
+            const vortexGrad = ctx.createRadialGradient(0, 0, 50, 0, 0, canvas.width * 0.6);
+            vortexGrad.addColorStop(0, 'rgba(255, 0, 100, 0.15)');
+            vortexGrad.addColorStop(0.5, 'rgba(100, 0, 255, 0.08)');
+            vortexGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = vortexGrad;
+            ctx.fillRect(-canvas.width, -canvas.height, canvas.width * 2, canvas.height * 2);
+            ctx.restore();
+        }
+
+        function drawHero(x, y) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            // Ayumi's Golden/Light Aura
+            const auraGrad = ctx.createRadialGradient(0, -50, 10, 0, -50, 120 + Math.sin(frame * 0.1) * 15);
+            auraGrad.addColorStop(0, 'rgba(255, 230, 100, 0.9)');
+            auraGrad.addColorStop(0.4, 'rgba(255, 120, 0, 0.5)');
+            auraGrad.addColorStop(1, 'transparent');
+            ctx.fillStyle = auraGrad;
+            ctx.beginPath();
+            ctx.arc(0, -50, 140, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Silhouette/Stylized Anime Hero Body
+            ctx.fillStyle = '#fff';
+            ctx.shadowColor = '#ffe600';
+            ctx.shadowBlur = 20;
+
+            // Head & Hair Glow
+            ctx.beginPath();
+            ctx.arc(0, -80, 22, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Cape/Body
+            ctx.beginPath();
+            ctx.moveTo(-15, -60);
+            ctx.lineTo(15, -60);
+            ctx.lineTo(35, 40);
+            ctx.lineTo(-35, 40);
+            ctx.closePath();
+            ctx.fill();
+
+            // Sword of Light
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 6;
+            ctx.shadowColor = '#00ffff';
+            ctx.shadowBlur = 25;
+            ctx.beginPath();
+            ctx.moveTo(10, -30);
+            ctx.lineTo(80, -90);
+            ctx.stroke();
+
+            ctx.restore();
+
+            // Spawn floating light particles
+            if (Math.random() < 0.6) {
+                particles.push(new Particle(
+                    x + (Math.random() - 0.5) * 60,
+                    y - 50 + (Math.random() - 0.5) * 60,
+                    '#ffe600',
+                    (Math.random() - 0.5) * 2,
+                    -Math.random() * 3 - 1,
+                    Math.random() * 5 + 2,
+                    40
+                ));
+            }
+        }
+
+        function drawDemonBoss(x, y) {
+            ctx.save();
+            ctx.translate(x, y);
+
+            // Dark Demon Aura
+            const demonAura = ctx.createRadialGradient(0, -60, 20, 0, -60, 180 + Math.cos(frame * 0.1) * 20);
+            demonAura.addColorStop(0, 'rgba(150, 0, 0, 0.8)');
+            demonAura.addColorStop(0.5, 'rgba(50, 0, 80, 0.6)');
+            demonAura.addColorStop(1, 'transparent');
+            ctx.fillStyle = demonAura;
+            ctx.beginPath();
+            ctx.arc(0, -60, 200, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Demon Silhouette
+            ctx.fillStyle = '#11001c';
+            ctx.shadowColor = '#ff003c';
+            ctx.shadowBlur = 15;
+
+            // Giant Horns & Head
+            ctx.beginPath();
+            ctx.arc(0, -100, 40, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Horns
+            ctx.lineWidth = 12;
+            ctx.strokeStyle = '#220033';
+            ctx.beginPath();
+            ctx.moveTo(-25, -120);
+            ctx.quadraticCurveTo(-60, -180, -80, -130);
+            ctx.moveTo(25, -120);
+            ctx.quadraticCurveTo(60, -180, 80, -130);
+            ctx.stroke();
+
+            // Glowing Red Eyes
+            ctx.fillStyle = '#ff003c';
+            ctx.shadowColor = '#ff003c';
+            ctx.shadowBlur = 20;
+            ctx.beginPath();
+            ctx.arc(-15, -105, 5, 0, Math.PI * 2);
+            ctx.arc(15, -105, 5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.restore();
+
+            // Dark smoke particles
+            if (Math.random() < 0.5) {
+                particles.push(new Particle(
+                    x + (Math.random() - 0.5) * 100,
+                    y - 80 + (Math.random() - 0.5) * 80,
+                    '#ff0055',
+                    (Math.random() - 0.5) * 3,
+                    (Math.random() - 0.5) * 3,
+                    Math.random() * 8 + 3,
+                    35
+                ));
+            }
+        }
+
+        function drawAttackBeam(startX, startY, endX, endY) {
+            ctx.save();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 40 + Math.sin(frame) * 10;
+            ctx.shadowColor = '#00e5ff';
+            ctx.shadowBlur = 40;
+
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+            // Outer Beam Energy
+            ctx.strokeStyle = '#ff0077';
+            ctx.lineWidth = 70 + Math.sin(frame) * 15;
+            ctx.shadowColor = '#ff0077';
+            ctx.shadowBlur = 60;
+            ctx.globalAlpha = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            ctx.lineTo(endX, endY);
+            ctx.stroke();
+
+            ctx.restore();
+
+            // Clash explosion particles at impact
+            for (let i = 0; i < 8; i++) {
+                particles.push(new Particle(
+                    endX,
+                    endY,
+                    Math.random() > 0.5 ? '#00e5ff' : '#ffe600',
+                    (Math.random() - 0.5) * 16,
+                    (Math.random() - 0.5) * 16,
+                    Math.random() * 10 + 4,
+                    30
+                ));
+            }
+        }
+
+        // Main Animation Loop
+        function animate() {
+            frame++;
+
+            // Screen Shake effect
+            ctx.save();
+            if (shakeTime > 0) {
+                const dx = (Math.random() - 0.5) * 15;
+                const dy = (Math.random() - 0.5) * 15;
+                ctx.translate(dx, dy);
+                shakeTime--;
+            }
+
+            drawBackground();
+
+            const heroX = canvas.width * 0.25;
+            const heroY = canvas.height * 0.65;
+            const bossX = canvas.width * 0.75;
+            const bossY = canvas.height * 0.65;
+
+            drawHero(heroX, heroY);
+            drawDemonBoss(bossX, bossY);
+
+            // Handle Attack Beam Animation
+            if (isAttacking) {
+                attackProgress += 0.05;
+                const currentTargetX = heroX + (bossX - heroX) * Math.min(1, attackProgress * 2);
+                const currentTargetY = heroY - 50 + ((bossY - 60) - (heroY - 50)) * Math.min(1, attackProgress * 2);
+
+                drawAttackBeam(heroX + 40, heroY - 50, currentTargetX, currentTargetY);
+
+                if (attackProgress >= 1) {
+                    if (attackProgress > 1.8) {
+                        isAttacking = false;
+                    }
+                }
+            }
+
+            // Update & Draw Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                particles[i].draw();
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            ctx.restore();
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
