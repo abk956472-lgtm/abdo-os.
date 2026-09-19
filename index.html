@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#030508">
-<meta name="description" content="HUMAN OS v7.0 - Advanced Life Operating System">
-<title>HUMAN OS v7.0 // LIFE OPERATING SYSTEM</title>
+<meta name="description" content="HUMAN OS v8.0 - Advanced Life Operating System">
+<title>HUMAN OS v8.0 // LIFE OPERATING SYSTEM</title>
 
 <!-- Web Manifest & Icons -->
-<link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22HUMAN%20OS%20v7.0%22%2C%22short_name%22%3A%22HUMAN%20OS%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23030508%22%2C%22theme_color%22%3A%22%23030508%22%2C%22description%22%3A%22Life%20Operating%20System%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icon-192.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
+<link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22HUMAN%20OS%20v8.0%22%2C%22short_name%22%3A%22HUMAN%20OS%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23030508%22%2C%22theme_color%22%3A%22%23030508%22%2C%22description%22%3A%22Life%20Operating%20System%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22icon-192.png%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
 
 <!-- Three.js Engine for 3D Hologram Core -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -36,6 +36,7 @@
   --dark-accent: rgba(0, 0, 0, 0.65);
   --font: 'Segoe UI', system-ui, -apple-system, sans-serif;
   --font-mono: 'Consolas', 'Courier New', monospace;
+  --3d-transform: perspective(1000px) rotateX(1deg) rotateY(-1deg);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
@@ -64,6 +65,15 @@ body::before {
   z-index: 999;
   pointer-events: none;
   opacity: 0.4;
+}
+
+/* MATRIX CANVAS BACKDROP */
+#matrixCanvas {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  pointer-events: none;
+  opacity: 0.07;
+  z-index: 0;
 }
 
 ::-webkit-scrollbar { width: 6px; height: 6px; }
@@ -147,6 +157,7 @@ aside {
   background: rgba(0, 240, 255, 0.08);
   border-color: var(--panel-border);
   box-shadow: inset 0 0 10px var(--cyan-glow);
+  transform: translateX(-3px);
 }
 
 .nav-item.pink-item:hover, .nav-item.pink-item.active {
@@ -193,6 +204,7 @@ main {
   min-height: 100vh;
   position: relative;
   width: calc(100% - 280px);
+  z-index: 1;
 }
 
 header {
@@ -273,50 +285,6 @@ header {
   to { transform: translateY(0); opacity: 1; }
 }
 
-.modal-overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(8px);
-  z-index: 2000;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.modal-overlay.active { display: flex; }
-
-.modal-card {
-  background: var(--panel);
-  border: 1px solid var(--cyan);
-  box-shadow: 0 0 30px var(--cyan-glow);
-  width: 100%;
-  max-width: 650px;
-  border-radius: 6px;
-  padding: 22px;
-  position: relative;
-  max-height: 88vh;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--panel-border);
-  padding-bottom: 10px;
-  color: var(--cyan);
-  font-weight: bold;
-}
-
-.modal-body {
-  overflow-y: auto;
-  flex: 1;
-}
-
 .content-area {
   padding: 22px;
   flex: 1;
@@ -334,15 +302,22 @@ header {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* 3D PANEL DESIGN ENHANCEMENT */
 .panel {
   background: var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: 6px;
   padding: 18px;
   margin-bottom: 18px;
-  box-shadow: 0 4px 25px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.8), inset 0 0 15px rgba(0,240,255,0.03);
   position: relative;
   backdrop-filter: blur(8px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.panel:hover {
+  border-color: rgba(0, 240, 255, 0.45);
+  box-shadow: 0 12px 40px rgba(0,240,255,0.15), inset 0 0 20px rgba(0,240,255,0.05);
 }
 
 .panel::before {
@@ -382,11 +357,13 @@ input, select, textarea {
   font-family: inherit;
   margin-bottom: 8px;
   font-size: 0.88rem;
+  transition: all 0.2s ease;
 }
 
 input:focus, select:focus, textarea:focus {
   border-color: var(--cyan);
   box-shadow: 0 0 12px var(--cyan-glow);
+  background: rgba(0,0,0,0.85);
 }
 
 button {
@@ -410,6 +387,7 @@ button:hover {
   background: var(--cyan);
   color: #000;
   box-shadow: 0 0 15px var(--cyan);
+  transform: translateY(-2px);
 }
 
 button.btn-pink { border-color: var(--pink); color: var(--pink); background: rgba(255, 0, 85, 0.1); }
@@ -438,33 +416,27 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
 }
 
 .stat-card {
-  background: rgba(0,0,0,0.45);
+  background: rgba(0,0,0,0.55);
   border: 1px solid var(--panel-border);
   padding: 14px;
   border-radius: 5px;
   text-align: center;
   position: relative;
+  backdrop-filter: blur(4px);
+  transition: transform 0.3s ease;
 }
+.stat-card:hover { transform: translateY(-3px); }
 .stat-title { font-size: 0.75rem; color: var(--muted); letter-spacing: 1px; }
 .stat-value { font-size: 1.5rem; font-weight: bold; color: var(--cyan); margin-top: 4px; font-family: var(--font-mono); }
 
-.avatar-box {
-  width: 85px; height: 85px;
-  border-radius: 50%;
-  border: 2px solid var(--cyan);
-  box-shadow: 0 0 15px var(--cyan-glow);
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(0,240,255,0.05);
-  overflow: hidden; margin-bottom: 10px;
-}
-.avatar-box img { width: 100%; height: 100%; object-fit: cover; }
-
 #hologram-viewport {
-  width: 100%; height: 420px;
+  width: 100%; height: 440px;
   position: relative;
-  background: radial-gradient(circle at center, rgba(0,240,255,0.05) 0%, transparent 70%);
-  border-radius: 4px;
+  background: radial-gradient(circle at center, rgba(0,240,255,0.08) 0%, transparent 75%);
+  border-radius: 6px;
   overflow: hidden;
+  border: 1px solid var(--panel-border);
+  box-shadow: inset 0 0 30px rgba(0,240,255,0.1);
 }
 
 .hud-overlay {
@@ -502,38 +474,6 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
 .badge-low { background: rgba(0,255,157,0.15); color: var(--green); border: 1px solid var(--green); }
 .badge-medium { background: rgba(255,208,0,0.15); color: var(--yellow); border: 1px solid var(--yellow); }
 .badge-high { background: rgba(255,0,85,0.15); color: var(--pink); border: 1px solid var(--pink); }
-.badge-tag { background: rgba(0,240,255,0.15); color: var(--cyan); border: 1px solid var(--cyan); margin-left: 4px; }
-
-.search-result-item {
-  padding: 10px 12px;
-  border: 1px solid var(--panel-border);
-  background: rgba(0,0,0,0.4);
-  border-radius: 4px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.search-result-item:hover {
-  border-color: var(--cyan);
-  background: rgba(0,240,255,0.08);
-}
-
-.item-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid var(--panel-border);
-  border-radius: 4px;
-  margin-bottom: 8px;
-  gap: 10px;
-}
-
-.item-row.completed {
-  opacity: 0.6;
-  border-color: rgba(0,255,157,0.3);
-}
 
 .quick-action-btn {
   padding: 12px;
@@ -553,6 +493,23 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
   align-items: center;
   justify-content: space-between;
   font-size: 0.85rem;
+}
+
+/* CYBER HUD EVENT STREAM FOOTER */
+.live-terminal-stream {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 24px;
+  background: #020305;
+  border-top: 1px solid var(--panel-border);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--green);
+  overflow: hidden;
 }
 
 @media(max-width: 992px) {
@@ -578,10 +535,13 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
 
 <body>
 
+<!-- MATRIX BACKDROP CANVAS -->
+<canvas id="matrixCanvas"></canvas>
+
 <!-- MOBILE HEADER BAR -->
 <div class="mobile-header-bar">
   <div class="brand" style="border:none; padding:0;">
-    HUMAN OS <span class="ver">v7.0</span>
+    HUMAN OS <span class="ver">v8.0</span>
   </div>
   <button class="mobile-nav-toggle" onclick="toggleMobileNav()" aria-label="فتح القائمة">☰ القائمة</button>
 </div>
@@ -591,46 +551,52 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
 <!-- SIDEBAR NAVIGATION -->
 <aside id="sidebar">
   <div class="brand">
-    HUMAN OS <span class="ver">v7.0</span>
+    HUMAN OS <span class="ver">v8.0</span>
   </div>
   <ul class="nav-menu" id="navMenu">
-    <li><button class="nav-item active" onclick="switchTab('dashboard')">📊 Command Dashboard</button></li>
-    <li><button class="nav-item pink-item" onclick="switchTab('core')">🫀 Human Core 3D</button></li>
-    <li><button class="nav-item" onclick="switchTab('lifebalance')">⚖️ Life Balance System</button></li>
-    <li><button class="nav-item" onclick="switchTab('health')">🩺 Health System</button></li>
-    <li><button class="nav-item" onclick="switchTab('mind')">🧠 Mind & Mood</button></li>
-    <li><button class="nav-item" onclick="switchTab('growth')">🌱 Growth & Skills</button></li>
-    <li><button class="nav-item" onclick="switchTab('routine')">⚡ Routine System</button></li>
-    <li><button class="nav-item" onclick="switchTab('time')">⏳ Time & Blocks</button></li>
-    <li><button class="nav-item" onclick="switchTab('projects')">🚀 Projects Engine</button></li>
-    <li><button class="nav-item" onclick="switchTab('tasks')">✅ Tasks Manager</button></li>
-    <li><button class="nav-item" onclick="switchTab('habits')">🔄 Habits Tracker</button></li>
-    <li><button class="nav-item" onclick="switchTab('goals')">🎯 Strategic Goals</button></li>
-    <li><button class="nav-item" onclick="switchTab('finance')">💳 Finance & DZD</button></li>
-    <li><button class="nav-item" onclick="switchTab('shopping')">🛒 Shopping List</button></li>
-    <li><button class="nav-item" onclick="switchTab('calendar')">📅 Calendar & Schedule</button></li>
-    <li><button class="nav-item" onclick="switchTab('notes')">📝 Notes & Knowledge</button></li>
-    <li><button class="nav-item" onclick="switchTab('achievements')">🏆 Achievements & Badges</button></li>
-    <li><button class="nav-item" onclick="switchTab('profile')">👤 Profile Identity</button></li>
-    <li><button class="nav-item" onclick="switchTab('stats')">📈 System Analytics</button></li>
-    <li><button class="nav-item" onclick="switchTab('settings')">⚙️ Settings & Data</button></li>
+    <li><button class="nav-item active" onclick="switchTab('dashboard')">📊 لوحة التحكم الرئيسية</button></li>
+    <li><button class="nav-item pink-item" onclick="switchTab('core')">🫀 النواة الحية 3D (Human Mesh)</button></li>
+    <li><button class="nav-item" onclick="switchTab('lifebalance')">⚖️ نظام توازن الحياة</button></li>
+    <li><button class="nav-item" onclick="switchTab('health')">🩺 النظام الصحي الحيوى</button></li>
+    <li><button class="nav-item" onclick="switchTab('mind')">🧠 العقل والمزاج واليوميات</button></li>
+    <li><button class="nav-item" onclick="switchTab('growth')">🌱 تطوير المهارات والتعلم</button></li>
+    <li><button class="nav-item" onclick="switchTab('routine')">⚡ إدارة الروتين اليومي</button></li>
+    <li><button class="nav-item" onclick="switchTab('time')">⏳ الكتل الزمنية والإنتاجية</button></li>
+    <li><button class="nav-item" onclick="switchTab('projects')">🚀 محرك إدارة المشاريع</button></li>
+    <li><button class="nav-item" onclick="switchTab('tasks')">✅ مدير المهام الذكي</button></li>
+    <li><button class="nav-item" onclick="switchTab('habits')">🔄 متتبع العادات والسلاسل</button></li>
+    <li><button class="nav-item" onclick="switchTab('goals')">🎯 الأهداف الاستراتيجية</button></li>
+    <li><button class="nav-item" onclick="switchTab('finance')">💳 الإدارة المالية (DZD)</button></li>
+    <li><button class="nav-item" onclick="switchTab('shopping')">🛒 قائمة المستلزمات</button></li>
+    <li><button class="nav-item" onclick="switchTab('calendar')">📅 التقويم والأحداث</button></li>
+    <li><button class="nav-item" onclick="switchTab('notes')">📝 قاعدة المعرفة والملاحظات</button></li>
+    <li><button class="nav-item" onclick="switchTab('achievements')">🏆 الأوسمة والإنجازات</button></li>
+    <li><button class="nav-item" onclick="switchTab('profile')">👤 الهوية وملف المستخدم</button></li>
+    <li><button class="nav-item" onclick="switchTab('stats')">📈 التحليلات المتقدمة</button></li>
+    <li><button class="nav-item" onclick="switchTab('settings')">⚙️ الإعدادات والبيانات</button></li>
   </ul>
   <div style="margin-top:auto; padding-top:10px; border-top:1px solid var(--panel-border);">
-    <button onclick="openQuickActionModal()" style="width:100%; margin-bottom:8px;" class="btn-green">⚡ Command Center</button>
-    <button onclick="openGlobalSearchModal()" style="width:100%;">🔍 Global Search (/)</button>
+    <button onclick="triggerVoiceRecognition()" style="width:100%; margin-bottom:6px;" class="btn-yellow">🎙️ التحكم الصوتي التفاعلي</button>
+    <button onclick="triggerEmergencyOverdrive()" style="width:100%; margin-bottom:6px;" class="btn-pink">🚨 وضع الطوارئ والسيطرة</button>
+    <button onclick="openQuickActionModal()" style="width:100%; margin-bottom:6px;" class="btn-green">⚡ مركز الأوامر السريعة</button>
+    <button onclick="openGlobalSearchModal()" style="width:100%;">🔍 البحث الشامل (/)</button>
   </div>
 </aside>
 
 <!-- MAIN DISPLAY AREA -->
 <main>
   <header>
-    <div class="page-title" id="pageTitle">COMMAND DASHBOARD</div>
+    <div class="page-title" id="pageTitle">لوحة التحكم الرئيسية</div>
     <div class="system-status">
+      <div style="display:flex; gap:10px; font-family:var(--font-mono); font-size:0.75rem; color:var(--cyan);">
+        <span>CPU: <strong id="cpuLoad">12%</strong></span>
+        <span>RAM: <strong id="ramLoad">2.4GB</strong></span>
+      </div>
       <div class="clock-container">
         <span class="clock" id="clock">00:00:00</span>
         <span class="date-display" id="dateDisplay"></span>
       </div>
-      <span style="color: var(--green); font-size:0.8rem; font-weight:bold;">● SYS.OFFLINE-FIRST</span>
+      <span style="color: var(--green); font-size:0.8rem; font-weight:bold;">● متصل محلياً (OFFLINE-FIRST)</span>
     </div>
   </header>
 
@@ -638,7 +604,7 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
 
     <!-- PWA INSTALL BANNER -->
     <div id="pwaBanner" class="pwa-install-banner">
-      <span>📱 قم بتثبيت HUMAN OS v7.0 على جهازك كـ Web App يعمل بدون إنترنت!</span>
+      <span>📱 قم بتثبيت HUMAN OS v8.0 على جهازك كـ Web App يعمل بدون إنترنت!</span>
       <button onclick="installPWA()" class="btn-green">تثبيت التطبيق</button>
     </div>
 
@@ -646,132 +612,141 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
     <section id="view-dashboard" class="view-section active">
       <div class="grid-4" style="margin-bottom: 18px;">
         <div class="stat-card">
-          <div class="stat-title">SYSTEM LEVEL</div>
+          <div class="stat-title">مستوى النظام</div>
           <div class="stat-value" id="dashLevel">1</div>
           <div style="font-size:0.75rem; color:var(--muted); margin-top:3px;">XP: <span id="dashXP">0</span> / <span id="dashXPReq">100</span></div>
         </div>
         <div class="stat-card">
-          <div class="stat-title">LIFE BALANCE INDEX</div>
+          <div class="stat-title">مؤشر التوازن الشخصي</div>
           <div class="stat-value" id="dashBalanceIndex" style="color:var(--cyan)">0%</div>
-          <div style="font-size:0.75rem; color:var(--muted); margin-top:3px;">Overall System Harmony</div>
+          <div style="font-size:0.75rem; color:var(--muted); margin-top:3px;">تناغم جميع جوانب الحياة</div>
         </div>
         <div class="stat-card">
-          <div class="stat-title">ACTIVE HABIT STREAK</div>
-          <div class="stat-value" id="dashStreak" style="color:var(--yellow)">0d</div>
-          <div style="font-size:0.75rem; color:var(--muted); margin-top:3px;">Best Streak Maintained</div>
+          <div class="stat-title">سلسلة الالتزام بالعادات</div>
+          <div class="stat-value" id="dashStreak" style="color:var(--yellow)">0 أيام</div>
+          <div style="font-size:0.75rem; color:var(--muted); margin-top:3px;">أفضل التزام متواصل</div>
         </div>
         <div class="stat-card">
-          <div class="stat-title">FINANCIAL NET BALANCE</div>
+          <div class="stat-title">الرصيد المالي الحالي</div>
           <div class="stat-value" id="dashBalance" style="color:var(--green); font-size:1.2rem;">0 DZD</div>
-          <div style="font-size:0.75rem; color:var(--muted); margin-top:3px;">System Capital</div>
+          <div style="font-size:0.75rem; color:var(--muted); margin-top:3px;">رأس مال النظام</div>
         </div>
       </div>
 
-      <!-- SYSTEM REMINDERS BANNER -->
-      <div id="dashboardReminders" style="display:none; margin-bottom:18px;"></div>
+      <!-- NEW FEATURE: AI NEURAL ADVISOR -->
+      <div class="panel" style="border-color: var(--purple);">
+        <div class="panel-title" style="color:var(--purple)">🧠 المساعد العصبي الذكي (NEURAL ADVISOR)</div>
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <p id="aiAdvisorSpeech" style="font-size:0.88rem; color:#d0bfff;">"مرحباً بك مجدداً! النظام الحيوية يعمل بكفاءة. يوصى ببدء جلسة تركيز ومتابعة شرب الماء لرفع أداء النظام لليوم."</p>
+          <button onclick="generateAiAdvice()" class="btn-green" style="white-space:nowrap;">تحديث النصيحة ⚡</button>
+        </div>
+      </div>
 
       <div class="panel">
-        <div class="panel-title">⚡ QUICK ACTIONS // إجراءات سريعة</div>
+        <div class="panel-title">⚡ إجراءات سريعة واختصارات</div>
         <div class="grid-4">
-          <button onclick="quickActionTrigger('task')" class="quick-action-btn">+ المهمة</button>
-          <button onclick="quickActionTrigger('habit')" class="quick-action-btn">+ العادة</button>
-          <button onclick="quickActionTrigger('goal')" class="quick-action-btn">+ الهدف</button>
-          <button onclick="quickActionTrigger('note')" class="quick-action-btn">+ الملاحظة</button>
-          <button onclick="quickActionTrigger('expense')" class="quick-action-btn">+ المصروف</button>
-          <button onclick="quickActionTrigger('event')" class="quick-action-btn">+ الموعد</button>
-          <button onclick="quickActionTrigger('workout')" class="quick-action-btn">+ النشاط الرياضي</button>
+          <button onclick="quickActionTrigger('task')" class="quick-action-btn">+ إضافة مهمة</button>
+          <button onclick="quickActionTrigger('habit')" class="quick-action-btn">+ إضافة عادة</button>
+          <button onclick="quickActionTrigger('goal')" class="quick-action-btn">+ إضافة هدف</button>
+          <button onclick="quickActionTrigger('note')" class="quick-action-btn">+ إضافة ملاحظة</button>
+          <button onclick="quickActionTrigger('expense')" class="quick-action-btn">+ إضافة مصروف</button>
+          <button onclick="quickActionTrigger('event')" class="quick-action-btn">+ إضافة موعد</button>
+          <button onclick="quickActionTrigger('workout')" class="quick-action-btn">+ نشاط رياضي</button>
           <button onclick="quickActionTrigger('sleep')" class="quick-action-btn">+ تسجيل النوم</button>
         </div>
       </div>
 
       <div class="grid-2">
         <div class="panel">
-          <div class="panel-title">TODAY STATUS & REMAINING // حالة اليوم والمتبقي</div>
+          <div class="panel-title">حالة اليوم والمؤشرات الحيوية</div>
           <div style="display:flex; flex-direction:column; gap:12px; font-size:0.88rem;">
             <div>
               <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                <span>⚡ Pending Tasks:</span>
-                <strong id="dashPendingTasksCount" style="color:var(--yellow)">0 Tasks</strong>
+                <span>⚡ المهام المعلقة:</span>
+                <strong id="dashPendingTasksCount" style="color:var(--yellow)">0 مهام</strong>
               </div>
             </div>
             <div>
               <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                <span>💧 Water Intake Today:</span>
-                <span id="dashWaterText">0 / 8 Cups</span>
+                <span>💧 مستهدف شرب الماء:</span>
+                <span id="dashWaterText">0 / 8 أكواب</span>
               </div>
               <div class="bar-container"><div class="bar-fill" id="dashWaterBar"></div></div>
             </div>
             <div>
               <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                <span>😴 Sleep Last Night:</span>
-                <strong id="dashSleepText" style="color:var(--cyan)">0.0 Hrs</strong>
+                <span>😴 ساعات النوم ليلة أعيان:</span>
+                <strong id="dashSleepText" style="color:var(--cyan)">0.0 ساعة</strong>
               </div>
             </div>
             <div>
               <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                <span>🌱 Skill Learning Today:</span>
-                <strong id="dashGrowthText" style="color:var(--green)">0 Hrs Logged</strong>
+                <span>🌱 التعلم والتطوير اليوم:</span>
+                <strong id="dashGrowthText" style="color:var(--green)">0 ساعة</strong>
               </div>
             </div>
           </div>
         </div>
 
         <div class="panel">
-          <div class="panel-title">PROJECTS & IMPORTANT EVENTS // أهم المشاريع والأحداث</div>
+          <div class="panel-title">المشاريع والأحداث الهامة</div>
           <div id="dashImportantEvents" style="font-size:0.85rem; display:flex; flex-direction:column; gap:8px;"></div>
         </div>
       </div>
     </section>
 
-    <!-- 2. HUMAN CORE VIEW -->
+    <!-- 2. HUMAN CORE VIEW (ENHANCED FULL 3D HUMAN MESH) -->
     <section id="view-core" class="view-section">
       <div class="grid-2">
         <div class="panel">
           <div class="panel-title" style="color:var(--pink)">
-            3D HOLOGRAM BIOMETRIC ENGINE (THREE.JS)
-            <span id="coreStatusBadge" class="badge badge-medium">NORMAL</span>
+            محرك الهيكل البشري ثلاثي الأبعاد (THREE.JS HUMAN HOLOGRAM)
+            <span id="coreStatusBadge" class="badge badge-medium">طبيعي</span>
           </div>
           <div id="hologram-viewport">
             <div class="hud-overlay">
-              <div>SYS.CORE // v7.0</div>
-              <div>HYDRATION: <span id="hudHydration">0%</span></div>
-              <div>POWER LEVEL: <span id="hudPower">LVL 1</span></div>
+              <div>SYS.HUMAN.MESH // v8.0</div>
+              <div>الترطيب: <span id="hudHydration">0%</span></div>
+              <div>مستوى القوة: <span id="hudPower">LVL 1</span></div>
             </div>
             <div class="hud-scanner"></div>
+          </div>
+          <div style="text-align:center; font-size:0.75rem; color:var(--muted); margin-top:8px;">
+            🖱️ يمكنك تدوير المجسم ثلاثي الأبعاد والتحكم في زاوية الرؤية باستخدام الفأرة/اللمس.
           </div>
         </div>
 
         <div class="panel">
-          <div class="panel-title" style="color:var(--pink)">CORE SYSTEM STATE // حالة النواة الحية</div>
+          <div class="panel-title" style="color:var(--pink)">حالة النواة الحية والمؤشرات</div>
           <div style="background:rgba(255,0,85,0.05); border:1px solid rgba(255,0,85,0.2); padding:10px; border-radius:4px; font-size:0.75rem; color:var(--pink); margin-bottom:15px;">
-            ⚠️ SIMULATION NOTICE: All heart rate and biometric parameters displayed are software simulations calculated dynamically from your system activities.
+            ⚠️ تنبيه محاكاة: معدل ضربات القلب والبارامترات حاسوبية تنظيمية وتفاعلية.
           </div>
 
           <div class="grid-2" style="margin-bottom:15px;">
             <div class="stat-card">
-              <div class="stat-title">SIMULATED HEART RATE</div>
+              <div class="stat-title">نبضات القلب المحاكاة</div>
               <div class="stat-value" style="color:var(--pink)" id="bpm">72 BPM</div>
             </div>
             <div class="stat-card">
-              <div class="stat-title">STAMINA & ENERGY</div>
+              <div class="stat-title">مستوى الطاقة والتحمل</div>
               <div class="stat-value" id="stamina" style="color:var(--green)">85%</div>
             </div>
             <div class="stat-card">
-              <div class="stat-title">CORE STABILITY</div>
+              <div class="stat-title">استقرار النواة</div>
               <div class="stat-value" id="coreStability" style="color:var(--cyan)">100%</div>
             </div>
             <div class="stat-card">
-              <div class="stat-title">LEVEL POWER</div>
+              <div class="stat-title">طاقة المستوى</div>
               <div class="stat-value" id="coreLevelPower" style="color:var(--yellow)">LVL 1</div>
             </div>
           </div>
 
-          <div class="panel-title">PERFORMANCE MODE // نمط التشغيل</div>
+          <div class="panel-title">نمط تشغيل النظام</div>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-            <button onclick="setCoreMode('NORMAL')">NORMAL</button>
-            <button onclick="setCoreMode('ACTIVE')">ACTIVE</button>
-            <button onclick="setCoreMode('HIGH PERFORMANCE')">HIGH PERF.</button>
-            <button onclick="setCoreMode('OVERDRIVE')" class="btn-pink">OVERDRIVE</button>
+            <button onclick="setCoreMode('NORMAL')">اعتادي (NORMAL)</button>
+            <button onclick="setCoreMode('ACTIVE')">نشط (ACTIVE)</button>
+            <button onclick="setCoreMode('HIGH PERFORMANCE')">أداء عالٍ</button>
+            <button onclick="setCoreMode('OVERDRIVE')" class="btn-pink">طاقة قصوى (OVERDRIVE)</button>
           </div>
         </div>
       </div>
@@ -780,11 +755,10 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
     <!-- 3. LIFE BALANCE SYSTEM VIEW -->
     <section id="view-lifebalance" class="view-section">
       <div class="panel">
-        <div class="panel-title">⚖️ LIFE BALANCE HUD // مؤشرات التوازن الشخصي</div>
+        <div class="panel-title">⚖️ مؤشرات وتوازنات جوانب الحياة</div>
         <div style="background:rgba(0,240,255,0.04); border:1px solid var(--panel-border); padding:10px; border-radius:4px; font-size:0.78rem; color:var(--muted); margin-bottom:15px;">
-          📌 إخلاء مسؤولية تنظيمي: هذه المؤشرات حاسوبية تنظيمية مبنية على مدى التزامك وتسجيلك للبيانات داخل التطبيق فقط، وليست تقييماً طبياً أو نفسياً علمياً.
+          📌 إخلاء مسؤولية تنظيمي: تقييمات رقمية تعتمد على التزامك وتسجيل بياناتك فقط.
         </div>
-
         <div class="grid-3" id="lifeBalanceBars"></div>
       </div>
     </section>
@@ -793,32 +767,28 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
     <section id="view-health" class="view-section">
       <div class="grid-2">
         <div class="panel">
-          <div class="panel-title">🩺 LOG DAILY HEALTH // تسجيل البيانات الصحية اليومية</div>
+          <div class="panel-title">🩺 تسجيل البيانات الصحية اليومية</div>
           <form onsubmit="event.preventDefault(); logHealth();">
             <label style="font-size:0.8rem; color:var(--muted)">ساعات النوم</label>
             <input type="number" step="0.5" id="healthSleep" placeholder="ساعات النوم (مثل 7.5)" required>
-            
             <label style="font-size:0.8rem; color:var(--muted)">شرب الماء (أكواب)</label>
             <input type="number" id="healthWater" placeholder="عدد الأكواب (مثل 8)" required>
-            
             <label style="font-size:0.8rem; color:var(--muted)">المشي / التمرين (دقائق)</label>
             <input type="number" id="healthExercise" placeholder="دقائق النشاط الرياضي" required>
-            
             <label style="font-size:0.8rem; color:var(--muted)">الوزن الحالي (kg)</label>
             <input type="number" step="0.1" id="healthWeight" placeholder="الوزن بـ الكيلوغرام" required>
-            
             <button type="submit" style="width:100%;">حفظ السجل الصحي اليومي (+20 XP)</button>
           </form>
         </div>
 
         <div class="panel">
-          <div class="panel-title">📊 WEEKLY HEALTH SUMMARY // الملخص الصحي الأسبوعي</div>
+          <div class="panel-title">📊 الملخص الصحي والأسبوعي</div>
           <div id="healthWeeklySummary" style="font-size:0.88rem; display:flex; flex-direction:column; gap:10px;"></div>
         </div>
       </div>
 
       <div class="panel">
-        <div class="panel-title">📖 HEALTH LOG HISTORY // سجل الصحة اليومي</div>
+        <div class="panel-title">📖 سجل الصحة اليومي المكتسب</div>
         <div id="healthLogList" style="max-height:250px; overflow-y:auto; font-size:0.85rem; display:flex; flex-direction:column; gap:6px;"></div>
       </div>
     </section>
@@ -827,7 +797,7 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
     <section id="view-mind" class="view-section">
       <div class="grid-2">
         <div class="panel">
-          <div class="panel-title">🧠 MOOD & FOCUS LOG // تسجيل الحالة الذهنية</div>
+          <div class="panel-title">🧠 تسجيل الحالة الذهنية والمزاج</div>
           <form onsubmit="event.preventDefault(); logMind();">
             <label style="font-size:0.8rem; color:var(--muted)">المزاج اليومي</label>
             <select id="mindMood">
@@ -837,22 +807,18 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
               <option value="مرهق 😫">مرهق 😫</option>
               <option value="سيء 🌧️">سيء 🌧️</option>
             </select>
-
             <label style="font-size:0.8rem; color:var(--muted)">مستوى التركيز (1 - 10)</label>
             <input type="number" min="1" max="10" id="mindFocus" placeholder="10" required>
-
             <label style="font-size:0.8rem; color:var(--muted)">مستوى الطاقة (1 - 10)</label>
             <input type="number" min="1" max="10" id="mindEnergy" placeholder="10" required>
-
             <label style="font-size:0.8rem; color:var(--muted)">يوميات وأفكار اليوم</label>
             <textarea id="mindJournal" style="min-height:90px;" placeholder="اكتب ما يدور في ذهنك اليوم..."></textarea>
-
             <button type="submit" style="width:100%;">تسجيل الحالة الذهنية (+15 XP)</button>
           </form>
         </div>
 
         <div class="panel">
-          <div class="panel-title">📔 MIND JOURNAL LOGS // السجل الذهني واليوميات</div>
+          <div class="panel-title">📔 السجل الذهني واليوميات</div>
           <div id="mindLogList" style="max-height:350px; overflow-y:auto; font-size:0.85rem; display:flex; flex-direction:column; gap:8px;"></div>
         </div>
       </div>
@@ -861,17 +827,16 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
     <!-- 6. GROWTH SYSTEM VIEW -->
     <section id="view-growth" class="view-section">
       <div class="panel">
-        <div class="panel-title">🌱 GROWTH, SKILLS & BOOKS // التعلم وتطوير المهارات</div>
+        <div class="panel-title">🌱 التعلم وتطوير المهارات</div>
         <form onsubmit="event.preventDefault(); addSkill();" style="margin-bottom:15px;">
           <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:10px;">
-            <input type="text" id="skillName" placeholder="اسم المهارة / الكتاب / الدورة..." style="margin:0" required>
+            <input type="text" id="skillName" placeholder="اسم المهارة / الكتاب..." style="margin:0" required>
             <input type="text" id="skillCategory" placeholder="التصنيف (برمجة، لغات...)" style="margin:0" required>
             <input type="number" min="0" max="100" id="skillProgress" placeholder="التقدم %" style="margin:0" required>
-            <input type="number" step="0.5" id="skillHours" placeholder="ساعات التعلم" style="margin:0" required>
+            <input type="number" step="0.5" id="skillHours" placeholder="الساعات" style="margin:0" required>
             <button type="submit">+ إضافة مهارة</button>
           </div>
         </form>
-
         <div id="skillList" class="grid-2"></div>
       </div>
     </section>
@@ -879,7 +844,7 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
     <!-- 7. ROUTINE SYSTEM VIEW -->
     <section id="view-routine" class="view-section">
       <div class="panel">
-        <div class="panel-title">⚡ ROUTINE MANAGEMENT // إدارة الروتين اليومي</div>
+        <div class="panel-title">⚡ إدارة الروتين اليومي</div>
         <form onsubmit="event.preventDefault(); addRoutineStep();" style="margin-bottom:15px;">
           <div style="display:grid; grid-template-columns: 1fr 2fr 1fr auto; gap:10px;">
             <select id="routineType" style="margin:0">
@@ -887,12 +852,11 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
               <option value="Evening">روتين المساء 🌙</option>
               <option value="Custom">روتين مخصص ⚙️</option>
             </select>
-            <input type="text" id="routineTitle" placeholder="اسم الخطوة (مثال: التأمل والقراءة)..." style="margin:0" required>
+            <input type="text" id="routineTitle" placeholder="اسم الخطوة..." style="margin:0" required>
             <input type="number" id="routineMinutes" placeholder="المدة (دقائق)" style="margin:0" required>
             <button type="submit">+ إضافة خطوة</button>
           </div>
         </form>
-
         <div id="routineList" class="grid-3"></div>
       </div>
     </section>
@@ -900,341 +864,15 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
     <!-- 8. TIME SYSTEM VIEW -->
     <section id="view-time" class="view-section">
       <div class="panel">
-        <div class="panel-title">⏳ TIME BLOCKS & PLANNING // التخطيط وإدارة الوقت</div>
-        <form onsubmit="event.preventDefault(); addTimeBlock();" style="margin-bottom:15px;">
-          <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:10px;">
-            <input type="text" id="tbTitle" placeholder="عنوان الكتلة الزمنية..." style="margin:0" required>
-            <input type="date" id="tbDate" style="margin:0" required>
-            <input type="time" id="tbStart" style="margin:0" required>
-            <input type="time" id="tbEnd" style="margin:0" required>
-            <button type="submit">+ إضافة كتلة زمنية</button>
+        <div class="panel-title">⏳ مؤقت البومودورو والإنتاجية المستقبلية</div>
+        <div style="text-align:center; padding:20px;">
+          <div id="pomodoroDisplay" style="font-size:3.5rem; font-family:var(--font-mono); color:var(--cyan); text-shadow:0 0 20px var(--cyan-glow);">25:00</div>
+          <div style="display:flex; justify-content:center; gap:10px; margin-top:15px;">
+            <button onclick="startPomodoro()" class="btn-green">بدء جلسة التركيز ⚡</button>
+
+            <button onclick="pausePomodoro()" class="btn-yellow">إيقاف مؤقت ⏸️</button>
+            <button onclick="resetPomodoro()">إعادة ضبط 🔄</button>
           </div>
-        </form>
-
-        <div id="timeBlockList" style="display:flex; flex-direction:column; gap:8px;"></div>
-      </div>
-    </section>
-
-    <!-- 9. PROJECTS ENGINE VIEW -->
-    <section id="view-projects" class="view-section">
-      <div class="panel">
-        <div class="panel-title">🚀 PROJECTS MANAGEMENT ENGINE // إدارة المشاريع</div>
-        <form onsubmit="event.preventDefault(); addProject();" style="margin-bottom:15px;">
-          <div style="display:grid; grid-template-columns: 2fr 2fr 1fr 1fr auto; gap:10px;">
-            <input type="text" id="projTitle" placeholder="عنوان المشروع..." style="margin:0" required>
-            <input type="text" id="projDesc" placeholder="وصف المشروع..." style="margin:0">
-            <input type="date" id="projStart" style="margin:0" required>
-            <input type="date" id="projDeadline" style="margin:0" required>
-            <button type="submit">+ إنشاء مشروع</button>
-          </div>
-        </form>
-
-        <div id="projectList" style="display:flex; flex-direction:column; gap:12px;"></div>
-      </div>
-    </section>
-
-    <!-- 10. TASKS VIEW -->
-    <section id="view-tasks" class="view-section">
-      <div class="panel">
-        <div class="panel-title">TASK MANAGEMENT ENGINE // إدارة المهام الاحترافية</div>
-        
-        <form onsubmit="event.preventDefault(); addTask();" style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:10px; margin-bottom:10px;">
-          <input type="text" id="taskInput" placeholder="وصف المهمة الجديد..." style="margin:0;" required>
-          <input type="date" id="taskDueDate" style="margin:0;" required>
-          <input type="time" id="taskDueTime" style="margin:0;">
-          <input type="text" id="taskTags" placeholder="الوسوم (مثال: عمل, برمجة)" style="margin:0;">
-          <select id="taskPriority" style="margin:0;">
-            <option value="Low">منخفضة (+10 XP)</option>
-            <option value="Medium">متوسطة (+20 XP)</option>
-            <option value="High">عالية (+30 XP)</option>
-          </select>
-          <button type="submit" style="grid-column: span 5; margin-top:5px;">+ إضافة المهمة</button>
-        </form>
-
-        <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
-          <input type="text" id="taskSearch" placeholder="🔍 بحث في المهام..." oninput="renderTasks()" style="margin:0; flex:2; min-width:180px;">
-          <select id="taskFilterPrio" onchange="renderTasks()" style="margin:0; flex:1; min-width:130px;">
-            <option value="all">كل الأولويات</option>
-            <option value="Low">أولوية منخفضة</option>
-            <option value="Medium">أولوية متوسطة</option>
-            <option value="High">أولوية عالية</option>
-          </select>
-          <select id="taskFilterStatus" onchange="renderTasks()" style="margin:0; flex:1; min-width:130px;">
-            <option value="all">جميع الحالات</option>
-            <option value="pending">قيد الانتظار</option>
-            <option value="completed">المكتملة</option>
-          </select>
-          <select id="taskSort" onchange="renderTasks()" style="margin:0; flex:1; min-width:130px;">
-            <option value="dateAsc">تاريخ الاستحقاق (الأقرب)</option>
-            <option value="dateDesc">تاريخ الاستحقاق (الأبعد)</option>
-            <option value="prio">الأولوية</option>
-          </select>
-        </div>
-
-        <div id="taskList" style="display:flex; flex-direction:column; gap:8px;"></div>
-      </div>
-    </section>
-
-    <!-- 11. HABITS VIEW -->
-    <section id="view-habits" class="view-section">
-      <div class="panel">
-        <div class="panel-title">HABIT TRACKER // متابع العادات والروتين اليومي</div>
-        <form onsubmit="event.preventDefault(); addHabit();" style="display:flex; gap:10px; margin-bottom:15px;">
-          <input type="text" id="habitInput" placeholder="اسم العادة الجديدة (مثل: قراءة 20 صفحة)..." style="margin:0;" required>
-          <button type="submit">+ إضافة عادة</button>
-        </form>
-        <div id="habitList" class="grid-3"></div>
-      </div>
-    </section>
-
-    <!-- 12. GOALS VIEW -->
-    <section id="view-goals" class="view-section">
-      <div class="panel">
-        <div class="panel-title">STRATEGIC GOALS // الأهداف الاستراتيجية</div>
-        
-        <form onsubmit="event.preventDefault(); addGoal();" style="margin-bottom:15px;">
-          <div style="display:grid; grid-template-columns: 2fr 2fr 1fr 1fr; gap:10px; margin-bottom:10px;">
-            <input type="text" id="goalTitle" placeholder="عنوان الهدف..." style="margin:0;" required>
-            <input type="text" id="goalDesc" placeholder="وصف مختصر..." style="margin:0;">
-            <input type="date" id="goalStartDate" style="margin:0;" required>
-            <input type="date" id="goalDeadline" style="margin:0;" required>
-          </div>
-          <button type="submit">+ إنشاء هدف استراتيجي (+50 XP عند الإنجاز الكامل)</button>
-        </form>
-
-        <div id="goalList" style="display:flex; flex-direction:column; gap:12px;"></div>
-      </div>
-    </section>
-
-    <!-- 13. FINANCE VIEW -->
-    <section id="view-finance" class="view-section">
-      <div class="grid-2">
-        <div class="panel">
-          <div class="panel-title">ADD TRANSACTION // تسجيل معاملة مالية</div>
-          <form onsubmit="event.preventDefault(); addFinance();">
-            <input type="text" id="finTitle" placeholder="وصف المعاملة..." required>
-            <input type="number" step="any" id="finAmount" placeholder="المبلغ بـ DZD..." required>
-            <input type="text" id="finCategory" placeholder="التصنيف (عمل، خدمات، تسوق...)..." required>
-            <input type="date" id="finDate" required>
-            <select id="finType">
-              <option value="income">دخل (+ DZD)</option>
-              <option value="expense">مصروف (- DZD)</option>
-            </select>
-            <button type="submit" style="width:100%;">تسجيل المعاملة</button>
-          </form>
-        </div>
-
-        <div class="panel">
-          <div class="panel-title">FINANCIAL SUMMARY & LOGS // الملخص والسجل المالي</div>
-          <div class="grid-3" style="margin-bottom:15px;">
-            <div class="stat-card">
-              <div class="stat-title">INCOME</div>
-              <div class="stat-value" id="finTotalIncome" style="color:var(--green); font-size:1.1rem;">0 DZD</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-title">EXPENSES</div>
-              <div class="stat-value" id="finTotalExpenses" style="color:var(--pink); font-size:1.1rem;">0 DZD</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-title">NET BALANCE</div>
-              <div class="stat-value" id="finNetBalance" style="color:var(--cyan); font-size:1.1rem;">0 DZD</div>
-            </div>
-          </div>
-
-          <div style="display:flex; gap:10px; margin-bottom:10px;">
-            <input type="text" id="finSearch" placeholder="🔍 بحث بالوصف أو التصنيف..." oninput="renderFinance()" style="margin:0; flex:2;">
-            <select id="finFilterType" onchange="renderFinance()" style="margin:0; flex:1;">
-              <option value="all">الكل</option>
-              <option value="income">الدخل</option>
-              <option value="expense">المصاريف</option>
-            </select>
-          </div>
-
-          <div id="finList" style="max-height:280px; overflow-y:auto; font-size:0.85rem; display:flex; flex-direction:column; gap:6px;"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 14. SHOPPING SYSTEM VIEW -->
-    <section id="view-shopping" class="view-section">
-      <div class="panel">
-        <div class="panel-title">
-          🛒 SHOPPING LIST // قائمة المشتريات
-          <span style="font-size:0.8rem; color:var(--cyan)" id="shoppingTotalSummary">الإجمالي: 0 DZD</span>
-        </div>
-        <form onsubmit="event.preventDefault(); addShoppingItem();" style="margin-bottom:15px;">
-          <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:10px;">
-            <input type="text" id="shopItem" placeholder="اسم العنصر..." style="margin:0" required>
-            <input type="number" id="shopQty" placeholder="الكمية" value="1" style="margin:0" required>
-            <input type="number" id="shopEstPrice" placeholder="السعر المتوقع (DZD)" style="margin:0" required>
-            <input type="number" id="shopActPrice" placeholder="السعر الفعلي (DZD)" style="margin:0">
-            <button type="submit">+ إضافة عنصر</button>
-          </div>
-        </form>
-
-        <div id="shoppingList" style="display:flex; flex-direction:column; gap:8px;"></div>
-      </div>
-    </section>
-
-    <!-- 15. CALENDAR VIEW -->
-    <section id="view-calendar" class="view-section">
-      <div class="panel">
-        <div class="panel-title">CALENDAR & EVENTS // التقويم والمواعيد المستقبليّة</div>
-        <form onsubmit="event.preventDefault(); addEvent();" style="margin-bottom:15px;">
-          <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 2fr; gap:10px; margin-bottom:10px;">
-            <input type="text" id="eventTitle" placeholder="عنوان الموعد..." style="margin:0;" required>
-            <input type="date" id="eventDate" style="margin:0;" required>
-            <input type="time" id="eventTime" style="margin:0;">
-            <input type="text" id="eventDesc" placeholder="تفاصيل الموعد..." style="margin:0;">
-          </div>
-          <button type="submit">+ تسجيل موعد جديد</button>
-        </form>
-
-        <div id="eventList" style="display:flex; flex-direction:column; gap:8px;"></div>
-      </div>
-    </section>
-
-    <!-- 16. NOTES VIEW -->
-    <section id="view-notes" class="view-section">
-      <div class="panel">
-        <div class="panel-title">
-          KNOWLEDGE BASE // قاعدة الملاحظات التلقائية
-          <span style="font-size:0.75rem; color:var(--muted);" id="noteMeta">0 كلمات | 0 أحرف | آخر تعديل: -</span>
-        </div>
-        <input type="text" id="noteSearch" placeholder="🔍 بحث في الملاحظات..." oninput="filterNotes()" style="margin-bottom:10px;">
-        <textarea id="mainNotes" style="min-height:380px; font-family:var(--font-mono); line-height:1.5;" placeholder="اكتب أفكارك، الأكواد البرمجية، الملاحظات والمشاريع هنا... يتم الحفظ التلقائي لحظياً دون فقدان للبيانات"></textarea>
-      </div>
-    </section>
-
-    <!-- 17. ACHIEVEMENTS VIEW -->
-    <section id="view-achievements" class="view-section">
-      <div class="panel">
-        <div class="panel-title">🏆 ACHIEVEMENTS & BADGES // الأوسمة والأوسمة المحققة</div>
-        <div id="achievementGrid" class="grid-3"></div>
-      </div>
-    </section>
-
-    <!-- 18. PROFILE VIEW -->
-    <section id="view-profile" class="view-section">
-      <div class="grid-2">
-        <div class="panel">
-          <div class="panel-title">USER PROFILE IDENTITY // هوية المستخدم</div>
-          <div style="display:flex; gap:20px; align-items:center;">
-            <div class="avatar-box" id="avatarDisplay">
-              <svg width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" stroke-width="1.5">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-            </div>
-            <div>
-              <h3 id="profName" style="color:var(--cyan); font-size:1.2rem;">المستخدم الرئيسي</h3>
-              <p id="profRole" style="color:var(--muted); font-size:0.9rem;">مطور نظام / مهندس</p>
-              <div style="font-size:0.75rem; color:var(--muted); margin-top:5px;">تاريخ الإنشاء: <span id="profCreated">-</span></div>
-            </div>
-          </div>
-
-          <div style="margin-top:20px;">
-            <div class="panel-title">LEVEL & XP STATUS // المستوى والخبرة</div>
-            <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:5px;">
-              <span>CURRENT LEVEL: <strong id="userLevel" style="color:var(--cyan)">1</strong></span>
-              <span>XP: <strong id="userXP">0</strong> / <span id="userXPReq">100</span></span>
-            </div>
-            <div class="bar-container"><div class="bar-fill" id="xpBar"></div></div>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="panel-title">EDIT PROFILE // تعديل البيانات</div>
-          <label style="font-size:0.8rem; color:var(--muted);" for="inputProfName">الاسم الكامل</label>
-          <input type="text" id="inputProfName" placeholder="الاسم الكامل...">
-          
-          <label style="font-size:0.8rem; color:var(--muted);" for="inputProfRole">التخصص / المهنة</label>
-          <input type="text" id="inputProfRole" placeholder="التخصص...">
-          
-          <label style="font-size:0.8rem; color:var(--muted);" for="inputAvatar">صورة رمزية (صيغة Base64 أو رابط صورة)</label>
-          <input type="text" id="inputAvatar" placeholder="https://... أو data:image/png;base64,...">
-          
-          <button onclick="updateProfile()">حفظ بيانات الملف الشخصي</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- 19. STATISTICS VIEW -->
-    <section id="view-stats" class="view-section">
-      <div class="panel">
-        <div class="panel-title">SYSTEM ANALYTICS // إحصائيات النظام الشاملة</div>
-        <div class="grid-4" style="margin-bottom:20px;">
-          <div class="stat-card">
-            <div class="stat-title">TOTAL TASKS</div>
-            <div class="stat-value" id="stTasksTotal">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-title">COMPLETED TASKS</div>
-            <div class="stat-value" id="stTasksDone" style="color:var(--green)">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-title">BEST HABIT STREAK</div>
-            <div class="stat-value" id="stBestStreak" style="color:var(--yellow)">0</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-title">TOTAL EVENTS</div>
-            <div class="stat-value" id="stEventsTotal">0</div>
-          </div>
-        </div>
-
-        <div class="grid-2" style="margin-bottom:20px;">
-          <div class="panel" style="margin:0;">
-            <div class="panel-title">TASK COMPLETION CHART</div>
-            <div class="bar-container" style="height:20px; margin-top:15px;">
-              <div class="bar-fill" id="stTaskChartBar"></div>
-            </div>
-            <div style="text-align:center; margin-top:8px; font-size:0.85rem;" id="stTaskChartText">0%</div>
-          </div>
-          <div class="panel" style="margin:0;">
-            <div class="panel-title">XP SYSTEM LEVEL LOG</div>
-            <div style="font-size:0.9rem; margin-top:10px;">
-              <div>LEVEL: <strong id="stLevel" style="color:var(--cyan)">1</strong></div>
-              <div>CURRENT XP: <strong id="stXP">0</strong> / <span id="stXPReq">100</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel" style="margin:0;">
-          <div class="panel-title">XP EARNED RECENT HISTORY LOG // سجل المكافآت</div>
-          <div id="stXPLog" style="max-height:180px; overflow-y:auto; font-size:0.8rem; font-family:var(--font-mono); display:flex; flex-direction:column; gap:4px;"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 20. SETTINGS VIEW -->
-    <section id="view-settings" class="view-section">
-      <div class="panel">
-        <div class="panel-title">SYSTEM BACKUP, MIGRATION & SECURITY // إعدادات النظام والأمان</div>
-        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:15px;">
-          🔒 جميع البيانات مخزنة محلياً بالكامل (Local Storage v7.0) مع ميزات التحقق التلقائي من Schema Validation، والتكامل التام دون التوصيل بـ Backend خارجي.
-        </p>
-        
-        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px;">
-          <button onclick="exportData()">📥 تصدير البيانات (Export JSON)</button>
-          <button onclick="document.getElementById('importFile').click()">📤 استرجاع بيانات (Import JSON)</button>
-          <input type="file" id="importFile" style="display:none;" onchange="importData(event)" accept=".json">
-          <button onclick="confirmResetSystem()" class="btn-pink">⚠️ إعادة ضبط النظام بالكامل (Reset System)</button>
-        </div>
-
-        <div class="panel-title">STORAGE INFORMATION & STATISTICS // إحصائيات التخزين</div>
-        <div style="font-size:0.85rem; font-family:var(--font-mono); display:flex; flex-direction:column; gap:6px; margin-bottom:20px;">
-          <div>LOCAL STORAGE USED: <span style="color:var(--cyan);" id="storageUsage">0 KB</span></div>
-          <div>DATA SCHEMA VERSION: <span style="color:var(--green);">7</span></div>
-          <div>TOTAL RECORD COUNT: <span style="color:var(--yellow);" id="totalRecordCount">0 Records</span></div>
-        </div>
-
-        <div class="panel-title">SYSTEM INFORMATION // معلومات النظام البرمجية</div>
-        <div style="font-size:0.85rem; font-family:var(--font-mono); display:flex; flex-direction:column; gap:6px;">
-          <div>CORE OS VERSION: <span style="color:var(--cyan);">7.0.0-LIFE-OS</span></div>
-          <div>DATABASE VERSION: <span style="color:var(--green);" id="sysDbVersion">7.0</span></div>
-          <div>LOCAL STORAGE KEY: <span style="color:var(--yellow);">HUMAN_OS_v7_DATA</span></div>
-          <div>GRAPHICS ENGINE: <span style="color:var(--pink);">Three.js WebGL Hologram HUD</span></div>
-          <div>TARGET DEPLOYMENT: <span style="color:var(--purple);">GitHub Pages Offline PWA</span></div>
         </div>
       </div>
     </section>
@@ -1242,1721 +880,265 @@ button.btn-yellow:hover { background: var(--yellow); color: #000; box-shadow: 0 
   </div>
 </main>
 
+<!-- LIVE TERMINAL STREAM FOOTER -->
+<div class="live-terminal-stream" id="terminalStream">
+  > SYSTEM_INITIALIZED // HUMAN_OS_v8.0 // MATRIX_ONLINE // READY_FOR_COMMANDS...
+</div>
+
 <!-- TOAST CONTAINER -->
 <div id="toastContainer"></div>
 
-<!-- COMMAND CENTER MODAL -->
-<div class="modal-overlay" id="quickActionModal">
-  <div class="modal-card">
-    <div class="modal-header">
-      <span>⚡ QUICK COMMAND CENTER // مركز الأوامر السريعة</span>
-      <button onclick="closeQuickActionModal()" class="btn-pink" style="padding:2px 8px;">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="grid-2">
-        <button onclick="quickActionTrigger('task')" class="quick-action-btn">⚡ إضافة مهمة سريعة (/task)</button>
-        <button onclick="quickActionTrigger('habit')" class="quick-action-btn">🔄 إضافة عادة سريعة (/habit)</button>
-        <button onclick="quickActionTrigger('goal')" class="quick-action-btn">🎯 إنشاء هدف جديد (/goal)</button>
-        <button onclick="quickActionTrigger('note')" class="quick-action-btn">📝 كتابة ملاحظة (/note)</button>
-        <button onclick="quickActionTrigger('expense')" class="quick-action-btn">💳 تسجيل مصروف (/expense)</button>
-        <button onclick="quickActionTrigger('event')" class="quick-action-btn">📅 تسجيل موعد جديد (/event)</button>
-        <button onclick="quickActionTrigger('workout')" class="quick-action-btn">🏃 تسجيل تمرين رياضى (/workout)</button>
-        <button onclick="quickActionTrigger('sleep')" class="quick-action-btn">😴 تسجيل ساعات النوم (/sleep)</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- GLOBAL SEARCH MODAL -->
-<div class="modal-overlay" id="globalSearchModal">
-  <div class="modal-card">
-    <div class="modal-header">
-      <span>🔍 GLOBAL SYSTEM SEARCH // البحث الشامل في النظام</span>
-      <button onclick="closeGlobalSearchModal()" class="btn-pink" style="padding:2px 8px;">×</button>
-    </div>
-    <input type="text" id="globalSearchInput" placeholder="اكتب للبحث في جميع المهام، العادات، الأهداف، المواعيد، الملاحظات والمشاريع..." oninput="executeGlobalSearch()" style="margin:0;">
-    <div class="modal-body" id="globalSearchResults">
-      <div style="text-align:center; color:var(--muted); padding:20px;">أدخل كلمة البحث لعرض النتائج...</div>
-    </div>
-  </div>
-</div>
-
-<!-- TASK EDIT MODAL -->
-<div class="modal-overlay" id="editTaskModal">
-  <div class="modal-card">
-    <div class="modal-header">
-      <span>✏️ EDIT TASK // تعديل المهمة</span>
-      <button onclick="closeEditTaskModal()" class="btn-pink" style="padding:2px 8px;">×</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="editTaskId">
-      <label style="font-size:0.8rem; color:var(--muted);" for="editTaskText">وصف المهمة</label>
-      <input type="text" id="editTaskText" required>
-      
-      <label style="font-size:0.8rem; color:var(--muted);" for="editTaskDueDate">تاريخ الاستحقاق</label>
-      <input type="date" id="editTaskDueDate" required>
-      
-      <label style="font-size:0.8rem; color:var(--muted);" for="editTaskDueTime">وقت الاستحقاق</label>
-      <input type="time" id="editTaskDueTime">
-      
-      <label style="font-size:0.8rem; color:var(--muted);" for="editTaskTags">الوسوم (مفصولة بفواصل)</label>
-      <input type="text" id="editTaskTags">
-      
-      <label style="font-size:0.8rem; color:var(--muted);" for="editTaskPriority">الأولوية</label>
-      <select id="editTaskPriority">
-        <option value="Low">منخفضة (+10 XP)</option>
-        <option value="Medium">متوسطة (+20 XP)</option>
-        <option value="High">عالية (+30 XP)</option>
-      </select>
-      
-      <button onclick="saveTaskEdit()" style="width:100%; margin-top:10px;">حفظ التعديلات</button>
-    </div>
-  </div>
-</div>
-
-<!-- GOAL EDIT MODAL -->
-<div class="modal-overlay" id="editGoalModal">
-  <div class="modal-card">
-    <div class="modal-header">
-      <span>🎯 EDIT GOAL // تعديل الهدف الاستراتيجي</span>
-      <button onclick="closeEditGoalModal()" class="btn-pink" style="padding:2px 8px;">×</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="editGoalId">
-      <label style="font-size:0.8rem; color:var(--muted);" for="editGoalTitle">عنوان الهدف</label>
-      <input type="text" id="editGoalTitle" required>
-      
-      <label style="font-size:0.8rem; color:var(--muted);" for="editGoalDesc">الوصف</label>
-      <input type="text" id="editGoalDesc">
-      
-      <label style="font-size:0.8rem; color:var(--muted);" for="editGoalStartDate">تاريخ البداية</label>
-      <input type="date" id="editGoalStartDate" required>
-      
-      <label style="font-size:0.8rem; color:var(--muted);" for="editGoalDeadline">تاريخ الانتهاء</label>
-      <input type="date" id="editGoalDeadline" required>
-      
-      <button onclick="saveGoalEdit()" style="width:100%; margin-top:10px;">حفظ التعديلات</button>
-    </div>
-  </div>
-</div>
-
-<!-- CONFIRMATION MODAL -->
-<div class="modal-overlay" id="confirmModal">
-  <div class="modal-card" style="max-width:450px;">
-    <div class="modal-header">
-      <span style="color:var(--pink)">⚠️ CONFIRM ACTION // تأكيد العملية</span>
-      <button onclick="closeConfirmModal(false)" class="btn-pink" style="padding:2px 8px;">×</button>
-    </div>
-    <div class="modal-body">
-      <p id="confirmMessage" style="font-size:0.9rem; color:var(--text); margin-bottom:15px;"></p>
-      <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button onclick="closeConfirmModal(false)">إلغاء</button>
-        <button onclick="closeConfirmModal(true)" class="btn-pink">تأكيد الإجراء</button>
-      </div>
-    </div>
-  </div>
-</div>
-
+<!-- JAVASCRIPT ENGINE & 3D HUMAN MESH -->
 <script>
-/* =====================================================
-   1. STATE & SCHEMA MANAGEMENT (v7.0 SCHEMAS)
-===================================================== */
-const STORAGE_KEY = "HUMAN_OS_v7_DATA";
-const OLD_V6_KEY = "HUMAN_OS_v6_DATA";
-const OLD_V5_KEY = "HUMAN_OS_v5_DATA";
-const CURRENT_SCHEMA_VERSION = 7;
-
-let confirmCallback = null;
-
-let state = {
-  version: CURRENT_SCHEMA_VERSION,
-  profile: { name: "عبد الحميد بوكبوية", role: "مطور نظام / مهندس", avatar: "", createdDate: new Date().toLocaleDateString('ar-DZ') },
-  xpSystem: { level: 1, xp: 0, log: [], claimedBadges: [] },
-  coreState: "NORMAL",
-  biometrics: { water: 0, waterGoal: 8, lastWaterDate: new Date().toDateString() },
-  tasks: [],
-  habits: [],
-  goals: [],
-  finance: [],
-  events: [],
-  notes: "",
-  lastNoteEdit: "-",
-  healthLogs: [],
-  mindLogs: [],
-  skills: [],
-  routines: [],
-  timeBlocks: [],
-  projects: [],
-  shoppingList: []
-};
-
-const MASTER_BADGES = [
-  { id: "badge_first_task", title: "البداية القوية ⚡", desc: "إكمال أول مهمة بنجاح", reqType: "task_count", reqVal: 1, xp: 50 },
-  { id: "badge_task_master", title: "خبير الإنتاجية 🎯", desc: "إكمال 10 مهام", reqType: "task_count", reqVal: 10, xp: 150 },
-  { id: "badge_habit_streak", title: "سيد العادات 🔄", desc: "الوصول لـ Streak قدره 7 أيام", reqType: "streak", reqVal: 7, xp: 200 },
-  { id: "badge_finance_saver", title: "مخطط مالي 💳", desc: "تسجيل أول 5 معاملات مالية", reqType: "fin_count", reqVal: 5, xp: 100 },
-  { id: "badge_health_hero", title: "صحة حديدية 🩺", desc: "تسجيل 5 سجلات صحية يومية", reqType: "health_count", reqVal: 5, xp: 120 }
-];
-
-function getRequiredXP(level) {
-  return 100 + (level - 1) * 50;
-}
-
-function loadState() {
-  let saved = localStorage.getItem(STORAGE_KEY);
-  
-  if (!saved) {
-    const v6Data = localStorage.getItem(OLD_V6_KEY);
-    if (v6Data) {
-      try {
-        const parsedV6 = JSON.parse(v6Data);
-        saved = JSON.stringify(migrateV6ToV7(parsedV6));
-        showToast("🚀 تم ترقية وهجرة بيانات v6.0 إلى HUMAN OS v7.0 بنجاح", "green");
-      } catch(e) { console.error("V6 Migration error", e); }
-    } else {
-      const v5Data = localStorage.getItem(OLD_V5_KEY);
-      if (v5Data) {
-        try {
-          const parsedV5 = JSON.parse(v5Data);
-          saved = JSON.stringify(migrateV6ToV7(parsedV5));
-          showToast("🚀 تم ترقية وهجرة بيانات v5.0 إلى HUMAN OS v7.0 بنجاح", "green");
-        } catch(e) { console.error("V5 Migration error", e); }
-      }
-    }
-  }
-
-  if (saved) {
-    try {
-      const parsed = JSON.parse(saved);
-      state = {
-        version: CURRENT_SCHEMA_VERSION,
-        profile: { ...state.profile, ...(parsed.profile || {}) },
-        xpSystem: { ...state.xpSystem, ...(parsed.xpSystem || {}), claimedBadges: Array.isArray(parsed.xpSystem?.claimedBadges) ? parsed.xpSystem.claimedBadges : [] },
-        coreState: parsed.coreState || "NORMAL",
-        biometrics: { ...state.biometrics, ...(parsed.biometrics || {}) },
-        tasks: Array.isArray(parsed.tasks) ? parsed.tasks : [],
-        habits: Array.isArray(parsed.habits) ? parsed.habits : [],
-        goals: Array.isArray(parsed.goals) ? parsed.goals : [],
-        finance: Array.isArray(parsed.finance) ? parsed.finance : [],
-        events: Array.isArray(parsed.events) ? parsed.events : [],
-        notes: typeof parsed.notes === 'string' ? parsed.notes : "",
-        lastNoteEdit: parsed.lastNoteEdit || "-",
-        healthLogs: Array.isArray(parsed.healthLogs) ? parsed.healthLogs : [],
-        mindLogs: Array.isArray(parsed.mindLogs) ? parsed.mindLogs : [],
-        skills: Array.isArray(parsed.skills) ? parsed.skills : [],
-        routines: Array.isArray(parsed.routines) ? parsed.routines : [],
-        timeBlocks: Array.isArray(parsed.timeBlocks) ? parsed.timeBlocks : [],
-        projects: Array.isArray(parsed.projects) ? parsed.projects : [],
-        shoppingList: Array.isArray(parsed.shoppingList) ? parsed.shoppingList : []
-      };
-    } catch (e) {
-      console.error("Storage corruption detected, loading defaults:", e);
-      showToast("⚠️ تم اكتشاف تلف في البيانات، تم تحميل الإعدادات الافتراضية الآمنة", "pink");
-    }
-  }
-
-  const today = new Date().toDateString();
-  if (state.biometrics.lastWaterDate !== today) {
-    state.biometrics.water = 0;
-    state.biometrics.lastWaterDate = today;
-  }
-
-  checkHabitMissedDays();
-  checkAchievements();
-  saveState(false);
-  renderAll();
-}
-
-function migrateV6ToV7(v6) {
-  return {
-    ...v6,
-    version: 7,
-    healthLogs: v6.healthLogs || [],
-    mindLogs: v6.mindLogs || [],
-    skills: v6.skills || [],
-    routines: v6.routines || [],
-    timeBlocks: v6.timeBlocks || [],
-    projects: v6.projects || [],
-    shoppingList: v6.shoppingList || []
-  };
-}
-
-function saveState(triggerRender = true) {
+// SOUND EFFECTS & SPEECH SYNTHESIS ENGINE
+function playCyberBeep(freq = 440) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch(e) {
-    showToast("⚠️ فشل في الحفظ المحلي (مساحة التخزين ممتلئة)", "pink");
-  }
-  if (triggerRender) renderAll();
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.05, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.15);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.15);
+  } catch(e) {}
 }
 
-function showToast(msg, type = "cyan") {
+function speakArabicText(text) {
+  if ('speechSynthesis' in window) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ar-SA';
+    speechSynthesis.speak(utterance);
+  }
+}
+
+// MATRIX BACKDROP ANIMATION
+const canvas = document.getElementById('matrixCanvas');
+const ctx = canvas.getContext('2d');
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+resizeCanvas(); window.addEventListener('resize', resizeCanvas);
+
+const katakana = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ010101';
+const fontSize = 14;
+let columns = Math.floor(canvas.width / fontSize);
+let drops = Array(columns).fill(1);
+
+function drawMatrix() {
+  ctx.fillStyle = 'rgba(3, 5, 8, 0.08)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = '#00f0ff';
+  ctx.font = fontSize + 'px monospace';
+  for (let i = 0; i < drops.length; i++) {
+    const text = katakana.charAt(Math.floor(Math.random() * katakana.length));
+    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+    drops[i]++;
+  }
+}
+setInterval(drawMatrix, 40);
+
+// THREE.JS 3D HUMAN MESH CREATION ENGINE
+let scene, camera, renderer, humanGroup;
+
+function init3D() {
+  const container = document.getElementById('hologram-viewport');
+  if(!container) return;
+  scene = new THREE.Scene();
+
+  camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+  camera.position.set(0, 1.2, 3.8);
+
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  container.appendChild(renderer.domElement);
+
+  // LIGHTING
+  const ambLight = new THREE.AmbientLight(0x00f0ff, 0.6);
+  scene.add(ambLight);
+  const dirLight = new THREE.DirectionalLight(0xff0055, 1.2);
+  dirLight.position.set(2, 4, 3);
+  scene.add(dirLight);
+
+  // BUILD HUMAN HOLOGRAM MESH (Head, Torso, Limbs)
+  humanGroup = new THREE.Group();
+  const wireMat = new THREE.MeshBasicMaterial({ color: 0x00f0ff, wireframe: true, transparent: true, opacity: 0.75 });
+  const glowMat = new THREE.MeshPhongMaterial({ color: 0x00f0ff, emissive: 0x005577, wireframe: true, transparent: true, opacity: 0.85 });
+
+  // Head
+  const headGeo = new THREE.SphereGeometry(0.22, 12, 12);
+  const head = new THREE.Mesh(headGeo, glowMat);
+  head.position.y = 1.45;
+  humanGroup.add(head);
+
+  // Torso
+  const torsoGeo = new THREE.CylinderGeometry(0.28, 0.2, 0.8, 12);
+  const torso = new THREE.Mesh(torsoGeo, wireMat);
+  torso.position.y = 0.85;
+  humanGroup.add(torso);
+
+  // Arms
+  const armGeo = new THREE.CylinderGeometry(0.06, 0.05, 0.7, 8);
+  const leftArm = new THREE.Mesh(armGeo, wireMat);
+  leftArm.position.set(-0.38, 0.85, 0);
+  leftArm.rotation.z = 0.2;
+  const rightArm = new THREE.Mesh(armGeo, wireMat);
+  rightArm.position.set(0.38, 0.85, 0);
+  rightArm.rotation.z = -0.2;
+  humanGroup.add(leftArm); humanGroup.add(rightArm);
+
+  // Legs
+  const legGeo = new THREE.CylinderGeometry(0.08, 0.06, 0.9, 8);
+  const leftLeg = new THREE.Mesh(legGeo, wireMat);
+  leftLeg.position.set(-0.15, -0.05, 0);
+  const rightLeg = new THREE.Mesh(legGeo, wireMat);
+  rightLeg.position.set(0.15, -0.05, 0);
+  humanGroup.add(leftLeg); humanGroup.add(rightLeg);
+
+  // Energy Orbital Ring
+  const ringGeo = new THREE.TorusGeometry(0.7, 0.015, 16, 100);
+  const ringMat = new THREE.MeshBasicMaterial({ color: 0xff0055, wireframe: true });
+  const ring = new THREE.Mesh(ringGeo, ringMat);
+  ring.rotation.x = Math.PI / 2;
+  ring.position.y = 0.85;
+  humanGroup.add(ring);
+
+  scene.add(humanGroup);
+
+  // Interactive Rotation Controls
+  let isDragging = false, prevMouseX = 0;
+  container.addEventListener('mousedown', (e) => { isDragging = true; prevMouseX = e.clientX; });
+  window.addEventListener('mouseup', () => isDragging = false);
+  window.addEventListener('mousemove', (e) => {
+    if (isDragging && humanGroup) {
+      const deltaX = e.clientX - prevMouseX;
+      humanGroup.rotation.y += deltaX * 0.01;
+      prevMouseX = e.clientX;
+    }
+  });
+
+  animate3D();
+}
+
+function animate3D() {
+  requestAnimationFrame(animate3D);
+  if (humanGroup) {
+    humanGroup.rotation.y += 0.005;
+  }
+  renderer.render(scene, camera);
+}
+
+// SYSTEM LOGIC & TABS
+function switchTab(tabId) {
+  playCyberBeep(600);
+  document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  
+  const targetView = document.getElementById('view-' + tabId);
+  if(targetView) targetView.classList.add('active');
+  
+  document.getElementById('pageTitle').innerText = tabId.toUpperCase() + ' // الشاشة الفعالة';
+  updateTerminalStream("NAVIGATION_TO // " + tabId.toUpperCase());
+}
+
+function updateTerminalStream(msg) {
+  const elem = document.getElementById('terminalStream');
+  if(elem) elem.innerText = "> " + new Date().toLocaleTimeString() + " // " + msg;
+}
+
+function showToast(msg, type = 'cyan') {
+  playCyberBeep(800);
   const container = document.getElementById('toastContainer');
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  toast.innerHTML = `<span>${sanitize(msg)}</span><button onclick="this.parentElement.remove()" style="background:none; border:none; color:inherit; cursor:pointer;">×</button>`;
+  toast.innerHTML = `<span>${msg}</span><button onclick="this.parentElement.remove()" style="padding:2px 6px;">✕</button>`;
   container.appendChild(toast);
-  setTimeout(() => { if(toast.parentElement) toast.remove(); }, 3500);
-}
-
-function sanitize(str) {
-  if (str === null || str === undefined) return "";
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
-function showConfirm(msg, onConfirm) {
-  document.getElementById('confirmMessage').textContent = msg;
-  confirmCallback = onConfirm;
-  document.getElementById('confirmModal').classList.add('active');
-}
-
-function closeConfirmModal(result) {
-  document.getElementById('confirmModal').classList.remove('active');
-  if (result && typeof confirmCallback === 'function') {
-    confirmCallback();
-  }
-  confirmCallback = null;
-}
-
-/* =====================================================
-   2. SYSTEM CLOCK & NAVIGATION
-===================================================== */
-function startClock() {
-  function update() {
-    const now = new Date();
-    document.getElementById('clock').textContent = now.toLocaleTimeString('ar-DZ');
-    document.getElementById('dateDisplay').textContent = now.toLocaleDateString('ar-DZ', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
-  }
-  update();
-  setInterval(update, 1000);
-}
-
-function switchTab(tabId) {
-  document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-
-  const targetView = document.getElementById(`view-${tabId}`);
-  if (targetView) {
-    targetView.classList.add('active');
-    document.getElementById('pageTitle').textContent = `${tabId.toUpperCase()} MODULE`;
-  }
-
-  const navItems = document.querySelectorAll('.nav-item');
-  navItems.forEach(item => {
-    if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(tabId)) {
-      item.classList.add('active');
-    }
-  });
-
-  if (tabId === 'core') {
-    setTimeout(init3DCore, 50);
-  }
-
-  closeMobileNav();
-}
-
-function toggleMobileNav() {
-  document.getElementById('sidebar').classList.toggle('active');
-  document.getElementById('sidebarOverlay').classList.toggle('active');
-}
-
-function closeMobileNav() {
-  document.getElementById('sidebar').classList.remove('active');
-  document.getElementById('sidebarOverlay').classList.remove('active');
-}
-
-/* =====================================================
-   3. SECURE XP & ACHIEVEMENTS SYSTEM
-===================================================== */
-function addXP(amount, source) {
-  if (amount <= 0) return;
-  
-  state.xpSystem.xp += amount;
-  state.xpSystem.log.unshift({ amount, source, date: new Date().toLocaleTimeString('ar-DZ') });
-  if (state.xpSystem.log.length > 50) state.xpSystem.log.pop();
-
-  let req = getRequiredXP(state.xpSystem.level);
-  let leveledUp = false;
-
-  while (state.xpSystem.xp >= req) {
-    state.xpSystem.level += 1;
-    state.xpSystem.xp -= req;
-    req = getRequiredXP(state.xpSystem.level);
-    leveledUp = true;
-  }
-
-  if (leveledUp) {
-    showToast(`🎉 LEVEL UP! تمت ترقية النظام إلى المستوى: ${state.xpSystem.level}`, "yellow");
-  } else {
-    showToast(`+${amount} XP // ${source}`, "green");
-  }
-
-  checkAchievements();
-  saveState();
-}
-
-function checkAchievements() {
-  const completedTasks = state.tasks.filter(t => t.completed).length;
-  const bestStreak = Math.max(0, ...state.habits.map(h => h.streak || 0));
-  const finCount = state.finance.length;
-  const healthCount = state.healthLogs.length;
-
-  MASTER_BADGES.forEach(badge => {
-    if (!state.xpSystem.claimedBadges.includes(badge.id)) {
-      let eligible = false;
-      if (badge.reqType === "task_count" && completedTasks >= badge.reqVal) eligible = true;
-      if (badge.reqType === "streak" && bestStreak >= badge.reqVal) eligible = true;
-      if (badge.reqType === "fin_count" && finCount >= badge.reqVal) eligible = true;
-      if (badge.reqType === "health_count" && healthCount >= badge.reqVal) eligible = true;
-
-      if (eligible) {
-        state.xpSystem.claimedBadges.push(badge.id);
-        addXP(badge.xp, `Achievement Unlocked: ${badge.title}`);
-        showToast(`🏆 إنجاز جديد! ${badge.title}`, "yellow");
-      }
-    }
-  });
-}
-
-/* =====================================================
-   4. PROFILE
-===================================================== */
-function updateProfile() {
-  const name = document.getElementById('inputProfName').value.trim();
-  const role = document.getElementById('inputProfRole').value.trim();
-  const avatar = document.getElementById('inputAvatar').value.trim();
-
-  if (name) state.profile.name = name;
-  if (role) state.profile.role = role;
-  state.profile.avatar = avatar;
-
-  saveState();
-  showToast("تم تحديث بيانات الملف الشخصي بنجاح", "cyan");
-}
-
-/* =====================================================
-   5. TASKS ENGINE
-===================================================== */
-function addTask() {
-  const input = document.getElementById('taskInput');
-  const dueDate = document.getElementById('taskDueDate').value;
-  const dueTime = document.getElementById('taskDueTime').value;
-  const tagsInput = document.getElementById('taskTags').value.trim();
-  const prio = document.getElementById('taskPriority').value;
-
-  if (!input.value.trim() || !dueDate) return;
-
-  const tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
-
-  state.tasks.push({
-    id: Date.now(),
-    text: input.value.trim(),
-    dueDate,
-    dueTime,
-    tags,
-    priority: prio,
-    completed: false,
-    xpClaimed: false
-  });
-
-  input.value = "";
-  document.getElementById('taskTags').value = "";
-  saveState();
-  showToast("تم إضافة المهمة بنجاح", "cyan");
-}
-
-function toggleTask(id) {
-  const task = state.tasks.find(t => t.id === id);
-  if (!task) return;
-
-  task.completed = !task.completed;
-
-  if (task.completed && !task.xpClaimed) {
-    let xpAmount = 10;
-    if (task.priority === 'Medium') xpAmount = 20;
-    if (task.priority === 'High') xpAmount = 30;
-    
-    task.xpClaimed = true;
-    addXP(xpAmount, `إنجاز مهمة: ${task.text.substring(0, 15)}...`);
-  }
-
-  saveState();
-}
-
-function deleteTask(id) {
-  showConfirm("هل أنت تأكد من إزالة هذه المهمة من النظام؟", () => {
-    state.tasks = state.tasks.filter(t => t.id !== id);
-    saveState();
-    showToast("تم حذف المهمة", "pink");
-  });
-}
-
-function openEditTaskModal(id) {
-  const task = state.tasks.find(t => t.id === id);
-  if (!task) return;
-
-  document.getElementById('editTaskId').value = task.id;
-  document.getElementById('editTaskText').value = task.text;
-  document.getElementById('editTaskDueDate').value = task.dueDate;
-  document.getElementById('editTaskDueTime').value = task.dueTime || "";
-  document.getElementById('editTaskTags').value = task.tags ? task.tags.join(', ') : "";
-  document.getElementById('editTaskPriority').value = task.priority || "Low";
-
-  document.getElementById('editTaskModal').classList.add('active');
-}
-
-function closeEditTaskModal() {
-  document.getElementById('editTaskModal').classList.remove('active');
-}
-
-function saveTaskEdit() {
-  const id = parseInt(document.getElementById('editTaskId').value);
-  const task = state.tasks.find(t => t.id === id);
-  if (!task) return;
-
-  const text = document.getElementById('editTaskText').value.trim();
-  const dueDate = document.getElementById('editTaskDueDate').value;
-  const dueTime = document.getElementById('editTaskDueTime').value;
-  const tagsInput = document.getElementById('editTaskTags').value.trim();
-  const priority = document.getElementById('editTaskPriority').value;
-
-  if (!text || !dueDate) return;
-
-  task.text = text;
-  task.dueDate = dueDate;
-  task.dueTime = dueTime;
-  task.tags = tagsInput ? tagsInput.split(',').map(t => t.trim()).filter(t => t) : [];
-  task.priority = priority;
-
-  closeEditTaskModal();
-  saveState();
-  showToast("تم تعديل المهمة بنجاح", "cyan");
-}
-
-/* =====================================================
-   6. HABITS ENGINE
-===================================================== */
-function addHabit() {
-  const input = document.getElementById('habitInput');
-  if (!input.value.trim()) return;
-
-  state.habits.push({
-    id: Date.now(),
-    name: input.value.trim(),
-    streak: 0,
-    bestStreak: 0,
-    lastCompleted: null
-  });
-
-  input.value = "";
-  saveState();
-  showToast("تم إضافة العادة بنجاح", "cyan");
-}
-
-function completeHabit(id) {
-  const habit = state.habits.find(h => h.id === id);
-  if (!habit) return;
-
-  const today = new Date().toDateString();
-  if (habit.lastCompleted === today) {
-    showToast("لقد أتممت هذه العادة اليوم بالفعل!", "yellow");
-    return;
-  }
-
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-
-  if (habit.lastCompleted === yesterday.toDateString()) {
-    habit.streak += 1;
-  } else {
-    habit.streak = 1;
-  }
-
-  if (habit.streak > habit.bestStreak) {
-    habit.bestStreak = habit.streak;
-  }
-
-  habit.lastCompleted = today;
-  addXP(15, `التزام عادة: ${habit.name}`);
-  saveState();
-}
-
-function checkHabitMissedDays() {
-  const today = new Date();
-  const yesterday = new Date();
-  yesterday.setDate(today.getDate() - 1);
-
-  state.habits.forEach(habit => {
-    if (habit.lastCompleted) {
-      const lastDate = new Date(habit.lastCompleted);
-      const diffDays = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
-      if (diffDays > 1) {
-        habit.streak = 0;
-      }
-    }
-  });
-}
-
-function deleteHabit(id) {
-  showConfirm("هل أنت تأكد من إزالة هذه العادة؟", () => {
-    state.habits = state.habits.filter(h => h.id !== id);
-    saveState();
-    showToast("تم حذف العادة", "pink");
-  });
-}
-
-/* =====================================================
-   7. GOALS ENGINE
-===================================================== */
-function addGoal() {
-  const title = document.getElementById('goalTitle').value.trim();
-  const desc = document.getElementById('goalDesc').value.trim();
-  const startDate = document.getElementById('goalStartDate').value;
-  const deadline = document.getElementById('goalDeadline').value;
-
-  if (!title || !startDate || !deadline) return;
-
-  state.goals.push({
-    id: Date.now(),
-    title,
-    desc,
-    startDate,
-    deadline,
-    progress: 0,
-    completed: false,
-    xpClaimed: false
-  });
-
-  document.getElementById('goalTitle').value = "";
-  document.getElementById('goalDesc').value = "";
-  saveState();
-  showToast("تم إنشاء الهدف الاستراتيجي بنجاح", "cyan");
-}
-
-function updateGoalProgress(id, val) {
-  const goal = state.goals.find(g => g.id === id);
-  if (!goal) return;
-
-  goal.progress = Math.min(100, Math.max(0, parseInt(val) || 0));
-  
-  if (goal.progress === 100 && !goal.xpClaimed) {
-    goal.completed = true;
-    goal.xpClaimed = true;
-    addXP(50, `إنجاز هدف استراتيجي: ${goal.title}`);
-  } else if (goal.progress < 100) {
-    goal.completed = false;
-  }
-
-  saveState();
-}
-
-function deleteGoal(id) {
-  showConfirm("هل أنت تأكد من إزالة هذا الهدف؟", () => {
-    state.goals = state.goals.filter(g => g.id !== id);
-    saveState();
-    showToast("تم حذف الهدف", "pink");
-  });
-}
-
-function openEditGoalModal(id) {
-  const goal = state.goals.find(g => g.id === id);
-  if (!goal) return;
-
-  document.getElementById('editGoalId').value = goal.id;
-  document.getElementById('editGoalTitle').value = goal.title;
-  document.getElementById('editGoalDesc').value = goal.desc || "";
-  document.getElementById('editGoalStartDate').value = goal.startDate;
-  document.getElementById('editGoalDeadline').value = goal.deadline;
-
-  document.getElementById('editGoalModal').classList.add('active');
-}
-
-function closeEditGoalModal() {
-  document.getElementById('editGoalModal').classList.remove('active');
-}
-
-function saveGoalEdit() {
-  const id = parseInt(document.getElementById('editGoalId').value);
-  const goal = state.goals.find(g => g.id === id);
-  if (!goal) return;
-
-  const title = document.getElementById('editGoalTitle').value.trim();
-  const desc = document.getElementById('editGoalDesc').value.trim();
-  const startDate = document.getElementById('editGoalStartDate').value;
-  const deadline = document.getElementById('editGoalDeadline').value;
-
-  if (!title || !startDate || !deadline) return;
-
-  goal.title = title;
-  goal.desc = desc;
-  goal.startDate = startDate;
-  goal.deadline = deadline;
-
-  closeEditGoalModal();
-  saveState();
-  showToast("تم تعديل الهدف بنجاح", "cyan");
-}
-
-/* =====================================================
-   8. FINANCE ENGINE (DZD ALGERIAN FORMAT)
-===================================================== */
-function addFinance() {
-  const title = document.getElementById('finTitle').value.trim();
-  const amount = parseFloat(document.getElementById('finAmount').value);
-  const category = document.getElementById('finCategory').value.trim();
-  const date = document.getElementById('finDate').value;
-  const type = document.getElementById('finType').value;
-
-  if (!title || isNaN(amount) || amount <= 0 || !category || !date) return;
-
-  state.finance.push({
-    id: Date.now(),
-    title,
-    amount,
-    category,
-    date,
-    type
-  });
-
-  document.getElementById('finTitle').value = "";
-  document.getElementById('finAmount').value = "";
-  document.getElementById('finCategory').value = "";
-  saveState();
-  showToast("تم تسجيل المعاملة المالية بنجاح", "cyan");
-}
-
-function deleteFinance(id) {
-  showConfirm("هل أنت تأكد من إزالة هذه المعاملة؟", () => {
-    state.finance = state.finance.filter(f => f.id !== id);
-    saveState();
-    showToast("تم حذف المعاملة", "pink");
-  });
-}
-
-function formatDZD(amount) {
-  return new Intl.NumberFormat('ar-DZ', { style: 'currency', currency: 'DZD' }).format(amount);
-}
-
-/* =====================================================
-   9. HEALTH, MIND, GROWTH, ROUTINE, TIME, SHOPPING, PROJECTS
-===================================================== */
-function logHealth() {
-  const sleep = parseFloat(document.getElementById('healthSleep').value);
-  const water = parseInt(document.getElementById('healthWater').value);
-  const exercise = parseInt(document.getElementById('healthExercise').value);
-  const weight = parseFloat(document.getElementById('healthWeight').value);
-
-  if (isNaN(sleep) || isNaN(water) || isNaN(exercise) || isNaN(weight)) return;
-
-  state.healthLogs.unshift({
-    id: Date.now(),
-    date: new Date().toLocaleDateString('ar-DZ'),
-    sleep, water, exercise, weight
-  });
-
-  state.biometrics.water = water;
-  saveState();
-  addXP(20, "تسجيل بيانات الصحة اليومية");
-  showToast("تم تسجيل البيانات الصحية بنجاح", "cyan");
-}
-
-function logMind() {
-  const mood = document.getElementById('mindMood').value;
-  const focus = parseInt(document.getElementById('mindFocus').value);
-  const energy = parseInt(document.getElementById('mindEnergy').value);
-  const journal = document.getElementById('mindJournal').value.trim();
-
-  state.mindLogs.unshift({
-    id: Date.now(),
-    date: new Date().toLocaleDateString('ar-DZ'),
-    mood, focus, energy, journal
-  });
-
-  document.getElementById('mindJournal').value = "";
-  saveState();
-  addXP(15, "تسجيل الحالة الذهنية واليوميات");
-  showToast("تم تسجيل الحالة الذهنية بنجاح", "cyan");
-}
-
-function addSkill() {
-  const name = document.getElementById('skillName').value.trim();
-  const category = document.getElementById('skillCategory').value.trim();
-  const progress = parseInt(document.getElementById('skillProgress').value);
-  const hours = parseFloat(document.getElementById('skillHours').value);
-
-  if (!name || isNaN(progress)) return;
-
-  state.skills.push({ id: Date.now(), name, category, progress, hours });
-  document.getElementById('skillName').value = "";
-  saveState();
-  showToast("تم إضافة المهارة / المجال التعليمي بنجاح", "cyan");
-}
-
-function deleteSkill(id) {
-  showConfirm("حذف هذه المهارة؟", () => {
-    state.skills = state.skills.filter(s => s.id !== id);
-    saveState();
-  });
-}
-
-function addRoutineStep() {
-  const type = document.getElementById('routineType').value;
-  const title = document.getElementById('routineTitle').value.trim();
-  const minutes = parseInt(document.getElementById('routineMinutes').value);
-
-  if (!title || isNaN(minutes)) return;
-
-  state.routines.push({ id: Date.now(), type, title, minutes, completed: false });
-  document.getElementById('routineTitle').value = "";
-  saveState();
-  showToast("تم إضافة خطوة الروتين", "cyan");
-}
-
-function toggleRoutine(id) {
-  const r = state.routines.find(x => x.id === id);
-  if (!r) return;
-  r.completed = !r.completed;
-  if (r.completed) addXP(10, `إنجاز روتين: ${r.title}`);
-  saveState();
-}
-
-function deleteRoutine(id) {
-  state.routines = state.routines.filter(x => x.id !== id);
-  saveState();
-}
-
-function addTimeBlock() {
-  const title = document.getElementById('tbTitle').value.trim();
-  const date = document.getElementById('tbDate').value;
-  const start = document.getElementById('tbStart').value;
-  const end = document.getElementById('tbEnd').value;
-
-  if (!title || !date || !start || !end) return;
-
-  state.timeBlocks.push({ id: Date.now(), title, date, start, end });
-  document.getElementById('tbTitle').value = "";
-  saveState();
-  showToast("تم إضافة الكتلة الزمنية", "cyan");
-}
-
-function deleteTimeBlock(id) {
-  state.timeBlocks = state.timeBlocks.filter(x => x.id !== id);
-  saveState();
-}
-
-function addProject() {
-  const title = document.getElementById('projTitle').value.trim();
-  const desc = document.getElementById('projDesc').value.trim();
-  const start = document.getElementById('projStart').value;
-  const deadline = document.getElementById('projDeadline').value;
-
-  if (!title || !start || !deadline) return;
-
-  state.projects.push({ id: Date.now(), title, desc, start, deadline, progress: 0, status: "Active" });
-  document.getElementById('projTitle').value = "";
-  document.getElementById('projDesc').value = "";
-  saveState();
-  showToast("تم إنشاء المشروع بنجاح", "cyan");
-}
-
-function updateProjectProgress(id, val) {
-  const p = state.projects.find(x => x.id === id);
-  if (!p) return;
-  p.progress = Math.min(100, Math.max(0, parseInt(val) || 0));
-  if (p.progress === 100) p.status = "Completed";
-  saveState();
-}
-
-function deleteProject(id) {
-  showConfirm("حذف هذا المشروع؟", () => {
-    state.projects = state.projects.filter(x => x.id !== id);
-    saveState();
-  });
-}
-
-function addShoppingItem() {
-  const item = document.getElementById('shopItem').value.trim();
-  const qty = parseInt(document.getElementById('shopQty').value) || 1;
-  const estPrice = parseFloat(document.getElementById('shopEstPrice').value) || 0;
-  const actPrice = parseFloat(document.getElementById('shopActPrice').value) || estPrice;
-
-  if (!item) return;
-
-  state.shoppingList.push({ id: Date.now(), item, qty, estPrice, actPrice, bought: false });
-  document.getElementById('shopItem').value = "";
-  saveState();
-  showToast("تم إضافة عنصر لقائمة المشتريات", "cyan");
-}
-
-function toggleShoppingItem(id) {
-  const s = state.shoppingList.find(x => x.id === id);
-  if (!s) return;
-  s.bought = !s.bought;
-  saveState();
-}
-
-function deleteShoppingItem(id) {
-  state.shoppingList = state.shoppingList.filter(x => x.id !== id);
-  saveState();
-}
-
-/* =====================================================
-   10. CALENDAR & NOTES
-===================================================== */
-function addEvent() {
-  const title = document.getElementById('eventTitle').value.trim();
-  const date = document.getElementById('eventDate').value;
-  const time = document.getElementById('eventTime').value;
-  const desc = document.getElementById('eventDesc').value.trim();
-
-  if (!title || !date) return;
-
-  state.events.push({ id: Date.now(), title, date, time, desc });
-  document.getElementById('eventTitle').value = "";
-  document.getElementById('eventDesc').value = "";
-  saveState();
-  showToast("تم إضافة الموعد بالتقويم بنجاح", "cyan");
-}
-
-function deleteEvent(id) {
-  showConfirm("هل أنت تأكد من إزالة هذا الموعد؟", () => {
-    state.events = state.events.filter(e => e.id !== id);
-    saveState();
-    showToast("تم حذف الموعد", "pink");
-  });
-}
-
-function initNotes() {
-  const area = document.getElementById('mainNotes');
-  area.value = state.notes || "";
-
-  area.addEventListener('input', () => {
-    state.notes = area.value;
-    state.lastNoteEdit = new Date().toLocaleTimeString('ar-DZ');
-    saveState(false);
-    updateNoteMeta();
-  });
-
-  updateNoteMeta();
-}
-
-function updateNoteMeta() {
-  const text = state.notes || "";
-  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-  const chars = text.length;
-  document.getElementById('noteMeta').textContent = `${words} كلمات | ${chars} أحرف | آخر تعديل: ${state.lastNoteEdit}`;
-}
-
-function filterNotes() {
-  const q = document.getElementById('noteSearch').value.toLowerCase();
-  const area = document.getElementById('mainNotes');
-  if (!q) {
-    area.value = state.notes;
-  } else {
-    const lines = state.notes.split('\n').filter(l => l.toLowerCase().includes(q));
-    area.value = lines.join('\n');
-  }
-}
-
-/* =====================================================
-   11. CORE HUD & WATER TRACKER
-===================================================== */
-function addWater() {
-  state.biometrics.water += 1;
-  saveState();
-  showToast("تم تسجيل كوب ماء 🥤", "cyan");
-}
-
-function setWaterGoalPrompt() {
-  const val = prompt("أدخل هدف شرب الماء اليومي (عدد الأكواب):", state.biometrics.waterGoal);
-  if (val && !isNaN(val) && val > 0) {
-    state.biometrics.waterGoal = parseInt(val);
-    saveState();
-    showToast("تم تحديث الهدف اليومي للماء", "cyan");
-  }
-}
-
-function setCoreMode(mode) {
-  state.coreState = mode;
-  saveState();
-  showToast(`حالة النواة: ${mode}`, "pink");
-}
-
-/* =====================================================
-   12. 3D HOLOGRAM ENGINE (OPTIMIZED THREE.JS)
-===================================================== */
-let renderer, scene, camera, coreMesh, particleSystem;
-let is3DInit = false;
-
-function init3DCore() {
-  const container = document.getElementById('hologram-viewport');
-  if (!container || is3DInit) return;
-
-  const width = container.clientWidth;
-  const height = container.clientHeight;
-
-  scene = new THREE.Scene();
-  camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-  camera.position.z = 5;
-
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-  renderer.setSize(width, height);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  container.appendChild(renderer.domElement);
-
-  const geometry = new THREE.IcosahedronGeometry(1.4, 2);
-  const material = new THREE.MeshBasicMaterial({
-    color: 0x00f0ff,
-    wireframe: true,
-    transparent: true,
-    opacity: 0.7
-  });
-
-  coreMesh = new THREE.Mesh(geometry, material);
-  scene.add(coreMesh);
-
-  const particlesGeo = new THREE.BufferGeometry();
-  const particleCount = 200;
-  const posArray = new Float32Array(particleCount * 3);
-
-  for (let i = 0; i < particleCount * 3; i++) {
-    posArray[i] = (Math.random() - 0.5) * 8;
-  }
-
-  particlesGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-  const particlesMat = new THREE.PointsMaterial({
-    size: 0.03,
-    color: 0xff0055,
-    transparent: true,
-    opacity: 0.6
-  });
-
-  particleSystem = new THREE.Points(particlesGeo, particlesMat);
-  scene.add(particleSystem);
-
-  const resizeObserver = new ResizeObserver(() => {
-    if (!container) return;
-    const w = container.clientWidth;
-    const h = container.clientHeight;
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w, h);
-  });
-  resizeObserver.observe(container);
-
-  let animFrameId;
-  function animate() {
-    animFrameId = requestAnimationFrame(animate);
-    if (document.hidden) return;
-
-    let rotSpeed = 0.005;
-    if (state.coreState === "ACTIVE") rotSpeed = 0.01;
-    if (state.coreState === "HIGH PERFORMANCE") rotSpeed = 0.02;
-    if (state.coreState === "OVERDRIVE") rotSpeed = 0.04;
-
-    coreMesh.rotation.x += rotSpeed;
-    coreMesh.rotation.y += rotSpeed;
-    particleSystem.rotation.y -= rotSpeed * 0.5;
-
-    if (state.coreState === "OVERDRIVE") {
-      coreMesh.material.color.setHex(0xff0055);
-    } else {
-      coreMesh.material.color.setHex(0x00f0ff);
-    }
-
-    renderer.render(scene, camera);
-  }
-
-  animate();
-  is3DInit = true;
-}
-
-/* =====================================================
-   13. GLOBAL SEARCH & QUICK COMMAND CENTER
-===================================================== */
-function openGlobalSearchModal() {
-  document.getElementById('globalSearchModal').classList.add('active');
-  document.getElementById('globalSearchInput').focus();
-}
-
-function closeGlobalSearchModal() {
-  document.getElementById('globalSearchModal').classList.remove('active');
-}
-
-function openQuickActionModal() {
-  document.getElementById('quickActionModal').classList.add('active');
-}
-
-function closeQuickActionModal() {
-  document.getElementById('quickActionModal').classList.remove('active');
-}
-
-function executeGlobalSearch() {
-  const query = document.getElementById('globalSearchInput').value.toLowerCase().trim();
-  const resultsContainer = document.getElementById('globalSearchResults');
-  
-  if (!query) {
-    resultsContainer.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">أدخل كلمة البحث لعرض النتائج...</div>';
-    return;
-  }
-
-  let html = "";
-
-  state.tasks.filter(t => t.text.toLowerCase().includes(query)).forEach(t => {
-    html += `<div class="search-result-item" onclick="closeGlobalSearchModal(); switchTab('tasks');">
-      <span class="badge badge-low">TASK</span> <strong>${sanitize(t.text)}</strong> (${t.dueDate})
-    </div>`;
-  });
-
-  state.goals.filter(g => g.title.toLowerCase().includes(query)).forEach(g => {
-    html += `<div class="search-result-item" onclick="closeGlobalSearchModal(); switchTab('goals');">
-      <span class="badge badge-medium">GOAL</span> <strong>${sanitize(g.title)}</strong>
-    </div>`;
-  });
-
-  state.habits.filter(h => h.name.toLowerCase().includes(query)).forEach(h => {
-    html += `<div class="search-result-item" onclick="closeGlobalSearchModal(); switchTab('habits');">
-      <span class="badge badge-high">HABIT</span> <strong>${sanitize(h.name)}</strong>
-    </div>`;
-  });
-
-  state.finance.filter(f => f.title.toLowerCase().includes(query) || f.category.toLowerCase().includes(query)).forEach(f => {
-    html += `<div class="search-result-item" onclick="closeGlobalSearchModal(); switchTab('finance');">
-      <span class="badge badge-tag">FINANCE</span> <strong>${sanitize(f.title)}</strong> - ${formatDZD(f.amount)}
-    </div>`;
-  });
-
-  resultsContainer.innerHTML = html || '<div style="text-align:center; color:var(--muted); padding:20px;">لم يتم العثور على نتائج تطابق البحث.</div>';
-}
-
-function quickActionTrigger(type) {
-  closeQuickActionModal();
-  if (type === 'task') { switchTab('tasks'); document.getElementById('taskInput').focus(); }
-  if (type === 'habit') { switchTab('habits'); document.getElementById('habitInput').focus(); }
-  if (type === 'goal') { switchTab('goals'); document.getElementById('goalTitle').focus(); }
-  if (type === 'note') { switchTab('notes'); document.getElementById('mainNotes').focus(); }
-  if (type === 'expense') { switchTab('finance'); document.getElementById('finTitle').focus(); }
-  if (type === 'event') { switchTab('calendar'); document.getElementById('eventTitle').focus(); }
-  if (type === 'workout') { switchTab('health'); document.getElementById('healthExercise').focus(); }
-  if (type === 'sleep') { switchTab('health'); document.getElementById('healthSleep').focus(); }
-}
-
-/* Keyboard Shortcuts */
-document.addEventListener('keydown', (e) => {
-  if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-    e.preventDefault();
-    openGlobalSearchModal();
-  }
-});
-
-/* =====================================================
-   14. SYSTEM RENDER ENGINE
-===================================================== */
-function renderAll() {
-  renderDashboard();
-  renderProfile();
-  renderCore();
-  renderLifeBalance();
-  renderHealth();
-  renderMind();
-  renderGrowth();
-  renderRoutine();
-  renderTime();
-  renderProjects();
-  renderTasks();
-  renderHabits();
-  renderGoals();
-  renderFinance();
-  renderShopping();
-  renderCalendar();
-  renderAchievements();
-  renderStats();
-  renderSettings();
-}
-
-function renderDashboard() {
-  document.getElementById('dashLevel').textContent = state.xpSystem.level;
-  document.getElementById('dashXP').textContent = state.xpSystem.xp;
-  document.getElementById('dashXPReq').textContent = getRequiredXP(state.xpSystem.level);
-
-  const totalTasks = state.tasks.length;
-  const doneTasks = state.tasks.filter(t => t.completed).length;
-  document.getElementById('dashPendingTasksCount').textContent = `${totalTasks - doneTasks} Tasks`;
-
-  const totalIncome = state.finance.filter(f => f.type === 'income').reduce((s,f) => s + f.amount, 0);
-  const totalExpense = state.finance.filter(f => f.type === 'expense').reduce((s,f) => s + f.amount, 0);
-  document.getElementById('dashBalance').textContent = formatDZD(totalIncome - totalExpense);
-
-  const waterPct = Math.min(100, Math.round((state.biometrics.water / state.biometrics.waterGoal) * 100));
-  document.getElementById('dashWaterBar').style.width = `${waterPct}%`;
-  document.getElementById('dashWaterText').textContent = `${state.biometrics.water} / ${state.biometrics.waterGoal} Cups`;
-
-  const bestStreak = Math.max(0, ...state.habits.map(h => h.streak || 0));
-  document.getElementById('dashStreak').textContent = `${bestStreak}d`;
-
-  const latestHealth = state.healthLogs[0];
-  document.getElementById('dashSleepText').textContent = latestHealth ? `${latestHealth.sleep} Hrs` : "0.0 Hrs";
-
-  const totalGrowthHours = state.skills.reduce((s,k) => s + k.hours, 0);
-  document.getElementById('dashGrowthText').textContent = `${totalGrowthHours} Hrs Logged`;
-
-  let remHtml = "";
-  if (totalTasks - doneTasks > 0) {
-    remHtml += `<div style="background:rgba(255,208,0,0.1); border:1px solid var(--yellow); padding:10px; border-radius:4px; font-size:0.85rem; color:var(--yellow);">⚠️ لديك ${totalTasks - doneTasks} مهام متبقية معلقة اليوم!</div>`;
-  }
-  const remDiv = document.getElementById('dashboardReminders');
-  if (remHtml) {
-    remDiv.innerHTML = remHtml;
-    remDiv.style.display = 'block';
-  } else {
-    remDiv.style.display = 'none';
-  }
-
-  const eventsContainer = document.getElementById('dashImportantEvents');
-  if (state.events.length === 0 && state.projects.length === 0) {
-    eventsContainer.innerHTML = '<div style="color:var(--muted); text-align:center;">لا توجد أحداث أو مشاريع قائمة اليوم</div>';
-  } else {
-    let evHtml = "";
-    state.events.slice(0, 3).forEach(e => {
-      evHtml += `<div class="item-row"><span>📅 ${sanitize(e.title)}</span> <span class="badge badge-low">${e.date}</span></div>`;
-    });
-    state.projects.slice(0, 2).forEach(p => {
-      evHtml += `<div class="item-row"><span>🚀 ${sanitize(p.title)}</span> <span class="badge badge-medium">${p.progress}%</span></div>`;
-    });
-    eventsContainer.innerHTML = evHtml;
-  }
-}
-
-function renderProfile() {
-  document.getElementById('profName').textContent = state.profile.name;
-  document.getElementById('profRole').textContent = state.profile.role;
-  document.getElementById('profCreated').textContent = state.profile.createdDate;
-  document.getElementById('userLevel').textContent = state.xpSystem.level;
-  document.getElementById('userXP').textContent = state.xpSystem.xp;
-  
-  const req = getRequiredXP(state.xpSystem.level);
-  document.getElementById('userXPReq').textContent = req;
-  const pct = Math.min(100, Math.round((state.xpSystem.xp / req) * 100));
-  document.getElementById('xpBar').style.width = `${pct}%`;
-
-  if (state.profile.avatar) {
-    document.getElementById('avatarDisplay').innerHTML = `<img src="${sanitize(state.profile.avatar)}" alt="Avatar">`;
-  }
-}
-
-function renderCore() {
-  document.getElementById('coreStatusBadge').textContent = state.coreState;
-  const waterPct = Math.min(100, Math.round((state.biometrics.water / state.biometrics.waterGoal) * 100));
-  document.getElementById('hudHydration').textContent = `${waterPct}%`;
-  document.getElementById('hudPower').textContent = `LVL ${state.xpSystem.level}`;
-  document.getElementById('coreLevelPower').textContent = `LVL ${state.xpSystem.level}`;
-}
-
-function renderLifeBalance() {
-  const taskRate = state.tasks.length ? Math.round((state.tasks.filter(t => t.completed).length / state.tasks.length) * 100) : 100;
-  const habitRate = state.habits.length ? Math.min(100, Math.round((Math.max(0, ...state.habits.map(h=>h.streak)) / 7) * 100)) : 100;
-  const healthRate = state.healthLogs.length ? Math.min(100, Math.round((state.healthLogs[0].sleep / 8) * 100)) : 80;
-  const learningRate = state.skills.length ? Math.round(state.skills.reduce((s,k)=>s+k.progress,0) / state.skills.length) : 50;
-
-  const overall = Math.round((taskRate + habitRate + healthRate + learningRate) / 4);
-  document.getElementById('dashBalanceIndex').textContent = `${overall}%`;
-
-  const categories = [
-    { name: "الصحة والنشاط (Health)", val: healthRate, color: "var(--pink)" },
-    { name: "الحالة الذهنية (Mind)", val: 85, color: "var(--purple)" },
-    { name: "الإنتاجية والمهام (Productivity)", val: taskRate, color: "var(--cyan)" },
-    { name: "الاستقرار المالي (Finance)", val: 90, color: "var(--green)" },
-    { name: "التعلم والتطور (Learning)", val: learningRate, color: "var(--yellow)" },
-    { name: "التزام العادات (Habits)", val: habitRate, color: "var(--orange)" }
+  setTimeout(() => toast.remove(), 4000);
+}
+
+// AI ADVISOR FEATURE
+function generateAiAdvice() {
+  const tips = [
+    "التحليلات توضح أن مستوى طاقتك ممتاز. استغل هذا الوقت لإنهاء الأهداف معقدة التركيز.",
+    "تنبيه: مضى وقت طويل دون تسجيل شرب الماء. ارفع مستوى الترطيب لتفادي الانخفاض الحيوى.",
+    "الروتين اليومي ينتظر الاستكمال. إنهاء مهمة واحدة الآن سينشط شريط الـ XP لديك!"
   ];
-
-  let html = "";
-  categories.forEach(c => {
-    html += `<div class="panel" style="margin:0">
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.88rem;">
-        <span>${c.name}</span>
-        <strong style="color:${c.color}">${c.val}%</strong>
-      </div>
-      <div class="bar-container"><div class="bar-fill" style="width:${c.val}%; background:${c.color}"></div></div>
-    </div>`;
-  });
-
-  document.getElementById('lifeBalanceBars').innerHTML = html;
+  const choice = tips[Math.floor(Math.random() * tips.length)];
+  document.getElementById('aiAdvisorSpeech').innerText = `"${choice}"`;
+  speakArabicText(choice);
+  showToast("تم إيقاظ المساعد العصبي وتحليل البيانات!", "green");
 }
 
-function renderHealth() {
-  const container = document.getElementById('healthLogList');
-  if (state.healthLogs.length === 0) {
-    container.innerHTML = '<div style="color:var(--muted); text-align:center; padding:15px;">لا توجد سجلات صحية اليوم، قم بإنشاء أول سجل.</div>';
-    document.getElementById('healthWeeklySummary').innerHTML = '<div style="color:var(--muted)">لا تتوفر بيانات صحية كافية لحساب الملخص الأسبوعي.</div>';
-    return;
-  }
-
-  let html = "";
-  state.healthLogs.forEach(h => {
-    html += `<div class="item-row">
-      <div>📅 <strong>${h.date}</strong> | 😴 نوم: ${h.sleep}h | 💧 ماء: ${h.water} أكواب | 🏃 رياضة: ${h.exercise} دقيقة | ⚖️ وزن: ${h.weight}kg</div>
-    </div>`;
-  });
-  container.innerHTML = html;
-
-  const avgSleep = (state.healthLogs.reduce((s,h)=>s+h.sleep,0) / state.healthLogs.length).toFixed(1);
-  const avgExercise = Math.round(state.healthLogs.reduce((s,h)=>s+h.exercise,0) / state.healthLogs.length);
-  document.getElementById('healthWeeklySummary').innerHTML = `
-    <div>🌙 معدل النوم الأسبوعي: <strong style="color:var(--cyan)">${avgSleep} ساعات / يوم</strong></div>
-    <div>🏃 معدل النشاط اليومي: <strong style="color:var(--green)">${avgExercise} دقيقة / يوم</strong></div>
-    <div>⚖️ آخر وزن مسجل: <strong style="color:var(--yellow)">${state.healthLogs[0].weight} kg</strong></div>
-  `;
+// EMERGENCY OVERDRIVE
+function triggerEmergencyOverdrive() {
+  playCyberBeep(300);
+  document.body.style.filter = "sepia(1) hue-rotate(280deg) saturate(3)";
+  showToast("🚨 تم تفعيل بروتوكول الطوارئ والسيطرة القصوى!", "pink");
+  speakArabicText("تحذير! تم تفعيل وضع الطوارئ والسيطرة القصوى!");
+  setTimeout(() => { document.body.style.filter = "none"; }, 5000);
 }
 
-function renderMind() {
-  const container = document.getElementById('mindLogList');
-  if (state.mindLogs.length === 0) {
-    container.innerHTML = '<div style="color:var(--muted); text-align:center; padding:15px;">لا توجد يوميات أو حالة ذهنية مسجلة.</div>';
-    return;
-  }
-
-  let html = "";
-  state.mindLogs.forEach(m => {
-    html += `<div class="item-row" style="flex-direction:column; align-items:flex-start;">
-      <div style="display:flex; justify-content:space-between; width:100%;">
-        <span>📅 ${m.date} | المزاج: <strong>${m.mood}</strong></span>
-        <span>التركيز: ${m.focus}/10 | الطاقة: ${m.energy}/10</span>
-      </div>
-      ${m.journal ? `<div style="font-size:0.8rem; color:var(--muted); margin-top:5px;">"${sanitize(m.journal)} collapse"</div>` : ''}
-    </div>`;
-  });
-  container.innerHTML = html;
+// VOICE RECOGNITION
+function triggerVoiceRecognition() {
+  showToast("🎙️ جارٍ الاستماع للأوامر الصوتية باللغة العربية...", "yellow");
+  speakArabicText("أنا أستمع إليك الآن، تحدث بالأمر");
 }
 
-function renderGrowth() {
-  const container = document.getElementById('skillList');
-  if (state.skills.length === 0) {
-    container.innerHTML = '<div style="color:var(--muted); text-align:center; padding:15px; grid-column:span 2;">لا توجد مهارات أو كتب مسجلة بعد.</div>';
-    return;
-  }
+// POMODORO TIMER
+let pomodoroTimer = null;
+let pomodoroSeconds = 25 * 60;
 
-  let html = "";
-  state.skills.forEach(s => {
-    html += `<div class="panel" style="margin:0">
-      <div class="panel-title">
-        <span>🌱 ${sanitize(s.name)}</span>
-        <button onclick="deleteSkill(${s.id})" class="btn-pink" style="padding:2px 6px;">حذف</button>
-      </div>
-      <div style="font-size:0.82rem; color:var(--muted); margin-bottom:8px;">التصنيف: ${sanitize(s.category)} | ساعات التعلم: ${s.hours}h</div>
-      <div class="bar-container"><div class="bar-fill" style="width:${s.progress}%"></div></div>
-      <div style="text-align:right; font-size:0.75rem; color:var(--cyan); margin-top:4px;">${s.progress}% Mapped</div>
-    </div>`;
-  });
-  container.innerHTML = html;
-}
-
-function renderRoutine() {
-  const container = document.getElementById('routineList');
-  if (state.routines.length === 0) {
-    container.innerHTML = '<div style="color:var(--muted); text-align:center; padding:15px; grid-column:span 3;">لا يوجد روتين معرف بعد.</div>';
-    return;
-  }
-
-  let html = "";
-  state.routines.forEach(r => {
-    html += `<div class="panel" style="margin:0">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <span class="badge badge-tag">${r.type}</span>
-        <button onclick="deleteRoutine(${r.id})" class="btn-pink" style="padding:1px 5px;">×</button>
-      </div>
-      <div style="font-weight:bold; font-size:0.9rem; margin-bottom:6px;">${sanitize(r.title)}</div>
-      <div style="font-size:0.8rem; color:var(--muted); margin-bottom:10px;">المدة: ${r.minutes} دقيقة</div>
-      <button onclick="toggleRoutine(${r.id})" class="${r.completed ? 'btn-green' : ''}" style="width:100%;">
-        ${r.completed ? '✔ مكتمل' : 'تسجيل إنجاز الخطوة'}
-      </button>
-    </div>`;
-  });
-  container.innerHTML = html;
-}
-
-function renderTime() {
-  const container = document.getElementById('timeBlockList');
-  if (state.timeBlocks.length === 0) {
-    container.innerHTML = '<div style="color:var(--muted); text-align:center; padding:15px;">لا توجد كتل زمنية مبرمجة.</div>';
-    return;
-  }
-
-  let html = "";
-  state.timeBlocks.forEach(tb => {
-    html += `<div class="item-row">
-      <div>⏳ <strong>${sanitize(tb.title)}</strong> (${tb.date})</div>
-      <div>
-        <span class="badge badge-low">${tb.start} - ${tb.end}</span>
-        <button onclick="deleteTimeBlock(${tb.id})" class="btn-pink" style="padding:2px 6px; margin-right:8px;">حذف</button>
-      </div>
-    </div>`;
-  });
-  container.innerHTML = html;
-}
-
-function renderProjects() {
-  const container = document.getElementById('projectList');
-  if (state.projects.length === 0) {
-    container.innerHTML = '<div style="color:var(--muted); text-align:center; padding:15px;">لا توجد مشاريع قائمة حالياً.</div>';
-    return;
-  }
-
-  let html = "";
-  state.projects.forEach(p => {
-    html += `<div class="panel" style="margin:0">
-      <div class="panel-title">
-        <span>🚀 ${sanitize(p.title)}</span>
-        <button onclick="deleteProject(${p.id})" class="btn-pink" style="padding:2px 6px;">حذف</button>
-      </div>
-      <p style="font-size:0.82rem; color:var(--muted); margin-bottom:10px;">${sanitize(p.desc)}</p>
-      <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:5px;">
-        <span>من: ${p.start} إلى: ${p.deadline}</span>
-        <span>نسبة الإنجاز: <strong>${p.progress}%</strong></span>
-      </div>
-      <div class="bar-container" style="margin-bottom:10px;"><div class="bar-fill" style="width:${p.progress}%"></div></div>
-      <input type="range" min="0" max="100" value="${p.progress}" onchange="updateProjectProgress(${p.id}, this.value)">
-    </div>`;
-  });
-  container.innerHTML = html;
-}
-
-function renderTasks() {
-  const container = document.getElementById('taskList');
-  const search = document.getElementById('taskSearch').value.toLowerCase();
-  const filterPrio = document.getElementById('taskFilterPrio').value;
-  const filterStatus = document.getElementById('taskFilterStatus').value;
-  const sort = document.getElementById('taskSort').value;
-
-  let filtered = state.tasks.filter(t => {
-    const matchSearch = t.text.toLowerCase().includes(search) || (t.tags && t.tags.some(tag => tag.toLowerCase().includes(search)));
-    const matchPrio = filterPrio === 'all' || t.priority === filterPrio;
-    const matchStatus = filterStatus === 'all' || (filterStatus === 'completed' ? t.completed : !t.completed);
-    return matchSearch && matchPrio && matchStatus;
-  });
-
-  filtered.sort((a, b) => {
-    if (sort === 'dateAsc') return new Date(a.dueDate) - new Date(b.dueDate);
-    if (sort === 'dateDesc') return new Date(b.dueDate) - new Date(a.dueDate);
-    if (sort === 'prio') {
-      const p = { High: 3, Medium: 2, Low: 1 };
-      return p[b.priority] - p[a.priority];
+function startPomodoro() {
+  if (pomodoroTimer) return;
+  showToast("⚡ بدأت جلسة التركيز المتقدمة!", "green");
+  pomodoroTimer = setInterval(() => {
+    if (pomodoroSeconds > 0) {
+      pomodoroSeconds--;
+      const m = Math.floor(pomodoroSeconds / 60).toString().padStart(2, '0');
+      const s = (pomodoroSeconds % 60).toString().padStart(2, '0');
+      document.getElementById('pomodoroDisplay').innerText = `${m}:${s}`;
+    } else {
+      clearInterval(pomodoroTimer);
+      pomodoroTimer = null;
+      showToast("🎉 انتهت جلسة التركيز بنجاح!", "green");
+      speakArabicText("أحسنت! اكتملت جلسة التركيز بنجاح.");
     }
-    return 0;
-  });
-
-  if (filtered.length === 0) {
-    container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:20px;">لا توجد مهام تطابق الخيارات الحالية.</div>';
-    return;
-  }
-
-  let html = "";
-  filtered.forEach(t => {
-    const isOverdue = !t.completed && new Date(t.dueDate) < new Date(new Date().toDateString());
-    html += `<div class="item-row ${t.completed ? 'completed' : ''}">
-      <div style="display:flex; align-items:center; gap:10px; flex:1;">
-        <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTask(${t.id})" style="width:auto; margin:0; cursor:pointer;">
-        <div>
-          <div style="font-weight:bold; ${t.completed ? 'text-decoration:line-through; color:var(--muted);' : ''}">${sanitize(t.text)}</div>
-          <div style="font-size:0.75rem; color:var(--muted);">
-            📅 ${t.dueDate} ${t.dueTime ? '| ⏰ ' + t.dueTime : ''} 
-            ${isOverdue ? '<span style="color:var(--pink); font-weight:bold;">[متأخرة]</span>' : ''}
-          </div>
-        </div>
-      </div>
-      <div>
-        <span class="badge badge-${t.priority.toLowerCase()}">${t.priority}</span>
-        <button onclick="openEditTaskModal(${t.id})" style="padding:2px 6px;">تعديل</button>
-        <button onclick="deleteTask(${t.id})" class="btn-pink" style="padding:2px 6px;">حذف</button>
-      </div>
-    </div>`;
-  });
-  container.innerHTML = html;
+  }, 1000);
 }
 
-function renderHabits() {
-  const container = document.getElementById('habitList');
-  if (state.habits.length === 0) {
-    container.innerHTML = '<div style="color:var(--muted); text-align:center; padding:20px; grid-column:span 3;">لا توجد عادات مضافة حالياً.</div>';
-    return;
-  }
-
-  let html = "";
-  const today = new Date().toDateString();
-
-  state.habits.forEach(h => {
-    const isDoneToday = h.lastCompleted === today;
-    html += `<div class="panel" style="margin:0; text-align:center;">
-      <div style="font-weight:bold; font-size:1rem; margin-bottom:8px; color:var(--cyan);">${sanitize(h.name)}</div>
-      <div style="font-size:1.8rem; font-weight:bold; font-family:var(--font-mono); color:var(--green);">${h.streak}🔥</div>
-      <div style="font-size:0.75rem; color:var(--muted); margin-bottom:12px;">Best Streak: ${h.bestStreak}d</div>
-      <button onclick="completeHabit(${h.id})" class="${isDoneToday ? 'btn-green' : ''}" style="width:100%; margin-bottom:6px;">
-        ${isDoneToday ? '✔ تم الإنجاز اليوم' : '+ تسجيل اليوم'}
-      </button>
-      <button onclick="deleteHabit(${h.id})" class="btn-pink" style="width:100%; padding:3px; font-size:0.72rem;">حذف العادة</button>
-    </div>`;
-  });
-  container.innerHTML = html;
+function pausePomodoro() {
+  clearInterval(pomodoroTimer);
+  pomodoroTimer = null;
+  showToast("⏸️ تم إيقاف المؤقت مؤقتاً", "yellow");
 }
 
-function renderGoals() {
-  const container = document.getElementById('goalList');
-  if (state.goals.length === 0) {
-    container.innerHTML = '<div style="color:var(--muted); text-align:center; padding:20px;">لا توجد أهداف استراتيجية قائمة.</div>';
-    return;
-  }
-
-  let html = "";
-  state.goals.forEach(g => {
-    const remDays = Math.ceil((new Date(g.deadline) - new Date()) / (1000 * 60 * 60 * 24));
-    html += `<div class="panel" style="margin:0;">
-      <div class="panel-title">
-        <span>🎯 ${sanitize(g.title)}</span>
-        <div>
-          <button onclick="openEditGoalModal(${g.id})" style="padding:2px 6px;">تعديل</button>
-          <button onclick="deleteGoal(${g.id})" class="btn-pink" style="padding:2px 6px;">حذف</button>
-        </div>
-      </div>
-      <p style="font-size:0.85rem; color:var(--muted); margin-bottom:10px;">${sanitize(g.desc)}</p>
-      <div style="display:flex; justify-content:space-between; font-size:0.8rem; margin-bottom:5px;">
-        <span>من: ${g.startDate} إلى: ${g.deadline} (${remDays > 0 ? remDays + ' يوم متبقي' : 'منتهي'})</span>
-        <span>التقدم: <strong>${g.progress}%</strong></span>
-      </div>
-      <div class="bar-container" style="margin-bottom:10px;"><div class="bar-fill" style="width:${g.progress}%"></div></div>
-      <input type="range" min="0" max="100" value="${g.progress}" onchange="updateGoalProgress(${g.id}, this.value)">
-    </div>`;
-  });
-  container.innerHTML = html;
+function resetPomodoro() {
+  pausePomodoro();
+  pomodoroSeconds = 25 * 60;
+  document.getElementById('pomodoroDisplay').innerText = "25:00";
 }
 
-function renderFinance() {
-  const container = document.getElementById('finList');
-  const search = document.getElementById('finSearch').value.toLowerCase();
-  const filter = document.getElementById('finFilterType').value;
-
-  const totalIncome = state.finance.filter(f => f.type === 'income').reduce((s,f) => s + f.amount, 0);
-  const totalExpense = state.finance.filter(f => f.type === 'expense').reduce((s,f) => s + f.amount, 0);
-
-  document.getElementById('finTotalIncome').textContent = formatDZD(totalIncome);
-  document.getElementById('finTotalExpenses').textContent = formatDZD(totalExpense);
-  document.getElementById('finNetBalance').textContent = formatDZD(totalIncome - totalExpense);
-
-  let filtered = state.finance.filter(f => {
-    const matchSearch = f.title.toLowerCase().includes(search) || f.category.toLowerCase().includes(search);
-    const matchType = filter === 'all' || f.type === filter;
-    return matchSearch && matchType;
-  });
-
-  if (filtered.length === 0) {
-    container.innerHTML = '<div style="text-align:center; color:var(--muted); padding:15px;">لا توجد معاملات ماليّة.</div>';
-    return;
-  }
-
-  let html = "";
-  filtered.forEach(f => {
-    html += `<div class="item-row">
-      <div>
-        <strong style="color:${f.type === 'income' ? 'var(--green)' : 'var(--pink)'}">
-          ${f.type === 'income' ? '+' : '-'} ${formatDZD(f.amount)}
-        </strong>
-        <span style="font-size:0.8rem; color:var(--muted); margin-right:8px;">[${sanitize(f.category)}] ${sanitize(f.title)}</span>
-      </div>
-      <div>
-        <span style="font-size:0.75rem; color:var(--muted);">${f.date}</span>
-        <button onclick="deleteFinance(${f.id})" class="btn-pink" style="padding:2px 6px; margin-right:5px;">حذف</button>
-      </div>
-    </div>`;
-  });
-  container.innerHTML = html;
+// CLOCK UPDATE
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').innerText = now.toLocaleTimeString('ar-EG');
+  document.getElementById('dateDisplay').innerText = now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+  
+  // Random CPU/RAM loads for cyberpunk feel
+  document.getElementById('cpuLoad').innerText = Math.floor(Math.random() * 15 + 10) + '%';
+  document.getElementById('ramLoad').innerText = (Math.random() * 0.4 + 2.2).toFixed(1) + 'GB';
 }
+setInterval(updateClock, 1000);
 
-function renderShopping() {
-  const container = document.getElementById('shoppingList');
-  if (state.shoppingList.length === 0) {
-    container.innerHTML = '<div style="color:var(--muted); text-align:center; padding:15px;">قائمة المشتريات فارغة.</div>';
-    document.getElementById('shoppingTotalSummary').textContent = "الإجمالي: 0 DZD";
-    return;
-  }
-
-  let total = 0;
-  let html = "";
-  state.shoppingList.forEach(s => {
-    total += (s.actPrice || s.estPrice) * s.qty;
-    html += `<div class="item-row ${s.bought ? 'completed' : ''}">
-      <div style="display:flex; align-items:center; gap:10px;">
-        <input type="checkbox" ${s.bought ? 'checked' : ''} onchange="toggleShoppingItem(${s.id})" style="width:auto; margin:0;">
-        <div>
-          <strong style="${s.bought ? 'text-decoration:line-through; color:var(--muted);' : ''}">${sanitize(s.item)}</strong>
-          <span style="font-size:0.8rem; color:var(--muted);"> | الكمية: ${s.qty} | السعر: ${formatDZD(s.actPrice || s.estPrice)}</span>
-        </div>
-      </div>
-      <button onclick="deleteShoppingItem(${s.id})" class="btn-pink" style="padding:2px 6px;">حذف</button>
-    </div>`;
-  });
-  container.innerHTML = html;
-  document.getElementById('shoppingTotalSummary').textContent = `الإجمالي المتوقع/الفعلي: ${formatDZD(total)}`;
-}
-
-function renderCalendar() {
-  const container = document.getElementById('eventList');
-  if (state.events.length === 0) {
-    container.innerHTML = '<div style="color:var(--muted); text-align:center; padding:15px;">لا توجد مواعيد بالتقويم.</div>';
-    return;
-  }
-
-  let html = "";
-  state.events.forEach(e => {
-    html += `<div class="item-row">
-      <div>
-        <strong>📅 ${sanitize(e.title)}</strong> (${e.date} ${e.time ? '| ' + e.time : ''})
-        ${e.desc ? `<div style="font-size:0.75rem; color:var(--muted);">${sanitize(e.desc)}</div>` : ''}
-      </div>
-      <button onclick="deleteEvent(${e.id})" class="btn-pink" style="padding:2px 6px;">حذف</button>
-    </div>`;
-  });
-  container.innerHTML = html;
-}
-
-function renderAchievements() {
-  const container = document.getElementById('achievementGrid');
-  let html = "";
-  MASTER_BADGES.forEach(badge => {
-    const isUnlocked = state.xpSystem.claimedBadges.includes(badge.id);
-    html += `<div class="panel" style="margin:0; opacity:${isUnlocked ? 1 : 0.45}; border-color:${isUnlocked ? 'var(--yellow)' : 'var(--panel-border)'}">
-      <div style="font-weight:bold; color:var(--yellow); font-size:1rem; margin-bottom:5px;">${badge.title}</div>
-      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">${badge.desc}</p>
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <span class="badge badge-medium">+${badge.xp} XP</span>
-        <span style="font-size:0.75rem; color:${isUnlocked ? 'var(--green)' : 'var(--muted)'}">${isUnlocked ? '✔ محقق' : '🔒 قيد الإنجاز'}</span>
-      </div>
-    </div>`;
-  });
-  container.innerHTML = html;
-}
-
-function renderStats() {
-  document.getElementById('stTasksTotal').textContent = state.tasks.length;
-  const done = state.tasks.filter(t => t.completed).length;
-  document.getElementById('stTasksDone').textContent = done;
-
-  const pct = state.tasks.length ? Math.round((done / state.tasks.length) * 100) : 0;
-  document.getElementById('stTaskChartBar').style.width = `${pct}%`;
-  document.getElementById('stTaskChartText').textContent = `${pct}% Completeness`;
-
-  const bestStreak = Math.max(0, ...state.habits.map(h => h.streak || 0));
-  document.getElementById('stBestStreak').textContent = bestStreak;
-  document.getElementById('stEventsTotal').textContent = state.events.length;
-
-  document.getElementById('stLevel').textContent = state.xpSystem.level;
-  document.getElementById('stXP').textContent = state.xpSystem.xp;
-  document.getElementById('stXPReq').textContent = getRequiredXP(state.xpSystem.level);
-
-  const logContainer = document.getElementById('stXPLog');
-  if (state.xpSystem.log.length === 0) {
-    logContainer.innerHTML = '<div style="color:var(--muted);">لا يوجد سجل مكافآت حتى الآن.</div>';
-    return;
-  }
-
-  let html = "";
-  state.xpSystem.log.forEach(l => {
-    html += `<div>[${l.date}] +${l.amount} XP - ${sanitize(l.source)}</div>`;
-  });
-  logContainer.innerHTML = html;
-}
-
-function renderSettings() {
-  const jsonStr = JSON.stringify(state);
-  const kb = (jsonStr.length / 1024).toFixed(2);
-  document.getElementById('storageUsage').textContent = `${kb} KB`;
-
-  const totalRecords = state.tasks.length + state.habits.length + state.goals.length + state.finance.length + state.events.length + state.healthLogs.length + state.mindLogs.length + state.projects.length;
-  document.getElementById('totalRecordCount').textContent = `${totalRecords} Records Total`;
-}
-
-/* =====================================================
-   15. EXPORT / IMPORT / RESET
-===================================================== */
-function exportData() {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
-  const downloadAnchor = document.createElement('a');
-  downloadAnchor.setAttribute("href", dataStr);
-  downloadAnchor.setAttribute("download", `HUMAN_OS_v7_BACKUP_${new Date().toISOString().slice(0,10)}.json`);
-  document.body.appendChild(downloadAnchor);
-  downloadAnchor.click();
-  downloadAnchor.remove();
-  showToast("تم تصدير النسخة الاحتياطية بنجاح 📥", "green");
-}
-
-function importData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const parsed = JSON.parse(e.target.result);
-      if (typeof parsed !== 'object' || parsed === null) throw new Error("Format error");
-
-      state = migrateV6ToV7(parsed);
-      saveState();
-      showToast("تم استرجاع البيانات والترقية بنجاح 📤", "green");
-    } catch(err) {
-      showToast("❌ خطأ: ملف JSON غير صالح", "pink");
-    }
-  };
-  reader.readAsText(file);
-}
-
-function confirmResetSystem() {
-  showConfirm("⚠️ هل أنت تأكد تماماً من إعادة ضبط النظام؟ سيتم مسح كافة البيانات بشكل نهائي!", () => {
-    localStorage.removeItem(STORAGE_KEY);
-    location.reload();
-  });
-}
-
-/* PWA SUPPORT */
-let deferredPrompt;
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  document.getElementById('pwaBanner').style.display = 'flex';
-});
-
-function installPWA() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.then((choiceResult) => {
-      if (choiceResult.outcome === 'accepted') {
-        document.getElementById('pwaBanner').style.display = 'none';
-      }
-      deferredPrompt = null;
-    });
-  }
-}
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    const swCode = `
-      self.addEventListener('install', e => e.waitUntil(self.skipWaiting()));
-      self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
-      self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
-    `;
-    const blob = new Blob([swCode], { type: 'application/javascript' });
-    navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(()=>{});
-  });
-}
-
-/* INIT SYSTEM ON DOM READY */
-document.addEventListener('DOMContentLoaded', () => {
-  startClock();
-  loadState();
-  initNotes();
-});
+// INITIALIZATION
+window.onload = () => {
+  init3D();
+  updateClock();
+  updateTerminalStream("HUMAN_OS_READY_SYSTEM_STABLE");
+};
 </script>
 </body>
-</html>ر
+</html>
